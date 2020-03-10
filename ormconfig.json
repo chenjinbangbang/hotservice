@@ -1,0 +1,21 @@
+{
+  "type": "mysql",
+  "host": "47.104.194.187",
+  "port": 3306,
+  "username": "root",
+  "password": "Achenjinbang_15915155079",
+  "database": "hot",
+  "synchronize": true,
+  "logging": false
+  // "entities": [
+  //   "src/shared/entity/**/*.ts"
+  // ],
+  // "migrations": [
+  //   "src/shared/migration/**/*.ts"
+  // ],
+  // "cli": {
+  //   "entitiesDir": "src/shared/entity",
+  //   "migrationsDir": "src/shared/migration",
+  //   "subscribersDir": "src/shared/subscriber"
+  // }
+}
