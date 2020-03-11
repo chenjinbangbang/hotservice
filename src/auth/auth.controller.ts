@@ -1,6 +1,7 @@
-import { Controller, Get, Param, Req, Post, Body } from '@nestjs/common';
+import { Controller, Get, Param, Req, Post, Body, Put, Delete } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Auth } from './auth.entity';
+import { AuthDto } from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -25,10 +26,28 @@ export class AuthController {
     return this.authService.find(req.query.name);
   }
 
+  // 根据某个字段查询数据
+  @Get(':id')
+  getAuthById(@Param('id') id) {
+    return this.authService.getAuthById(id);
+  }
+
   // 新增数据
   @Post()
-  create(@Body() body) {
-    return this.authService.create(body);
+  async create(@Body() body) {
+    return await this.authService.create(body);
+  }
+
+  // 更新数据
+  @Put()
+  async update(@Body() body: AuthDto) {
+    console.log(body);
+    return await this.authService.update(body);
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id) {
+    return await this.authService.delete(id);
   }
 
 }
