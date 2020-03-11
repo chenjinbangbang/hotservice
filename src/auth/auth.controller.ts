@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Req, Post, Body, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Param, Req, Post, Body, Put, Delete, ParseIntPipe, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Auth } from './auth.entity';
 import { AuthDto } from './dto/auth.dto';
@@ -34,12 +34,13 @@ export class AuthController {
 
   // 新增数据
   @Post()
-  async create(@Body() body) {
+  async create(@Body() body: AuthDto) {
     return await this.authService.create(body);
   }
 
   // 更新数据
   @Put()
+  // @UsePipes(ValidationPipe)
   async update(@Body() body: AuthDto) {
     console.log(body);
     return await this.authService.update(body);

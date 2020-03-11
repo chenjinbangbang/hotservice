@@ -23,7 +23,20 @@ export class AuthService {
 
   // 按条件查询数据
   find(name: string) {
-    return this.authRepository.find({ name }) // find()方法加上查询对象参数，即可查询符合条件的数据
+    // return this.authRepository.find({ name }) // find()方法加上查询对象参数，即可查询符合条件的数据
+
+    // query查询
+    return this.authRepository.createQueryBuilder('a') // auth为表名
+      // .leftJoinAndSelect('auth.roles', 'r') // 指定join auth的roles关联属性，并指定别名为r，并设定搜寻条件
+      .where('name like :name', { name: `%${name}%` }) // where条件
+      // .andWhere('')
+      .orderBy('age', 'DESC') // DESC降序排序，ASC升序
+      // .addOrderBy('age', 'DESC')
+      .skip(0) // 分页-从哪行数据开始
+      .take(2) // 分页-一页的条数
+      .getManyAndCount(); // 回传record并count数量
+    // .getMany(); // 回传多笔资料
+    // .getSql() // 回传上面API所组出的Raw SQL，debug用
   }
 
   // 根据某个字段查询数据

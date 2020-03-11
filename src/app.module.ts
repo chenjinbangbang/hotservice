@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 // 连接mysql数据库
 import { TypeOrmModule } from '@nestjs/typeorm'; // 使用TypeORM是因为它是TypeScript中最成熟的对象关系映射器（ORM）
 import { Connection } from 'typeorm';
+import { APP_PIPE } from '@nestjs/core';
 // import { Photo } from './photo/photo.entity'; // 使用photo实体，需要让TypeORM知道它插入实体数组
 
 @Module({
@@ -30,7 +31,12 @@ import { Connection } from 'typeorm';
     AuthModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe
+    }
+  ],
 })
 export class AppModule {
   // 建立连接。一旦完成，TypeORM连接和EntityManager对象就可以在整个项目中注入（不需要导入任何模块）

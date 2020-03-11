@@ -12,8 +12,12 @@ export class Auth extends BaseEntity { // 实体类要与字段数据库表一�
   @Column('int')
   age: number;
 
+  // @Column({
+  //   default: false
+  // })
+  // sex: boolean; // boolean对应数据库的类型tinyint，false对应0，true对应1
   @Column({
-    default: false
+    default: 0
   })
-  sex: boolean; // boolean对应数据库的类型tinyint，false对应0，true对应1
+  sex: number;
 }
