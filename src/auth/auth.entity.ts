@@ -20,4 +20,7 @@ export class Auth extends BaseEntity { // 实体类要与字段数据库表一�
     default: 0
   })
   sex: number;
+
+  // @Column()
+  // sex1: number;
 }

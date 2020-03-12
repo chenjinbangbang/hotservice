@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { UserModule } from './user/user.module';
-import { AuthModule } from './auth/auth.module';
+// import { AuthModule } from './auth/auth.module';
 
 // 连接mysql数据库
 import { TypeOrmModule } from '@nestjs/typeorm'; // 使用TypeORM是因为它是TypeScript中最成熟的对象关系映射器（ORM）
@@ -28,7 +28,7 @@ import { APP_PIPE } from '@nestjs/core';
       }
     ),
     UserModule,
-    AuthModule
+    // AuthModule
   ],
   controllers: [AppController],
   providers: [AppService,
