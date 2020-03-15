@@ -8,8 +8,10 @@ import { UserModule } from './user/user.module';
 // 连接mysql数据库
 import { TypeOrmModule } from '@nestjs/typeorm'; // 使用TypeORM是因为它是TypeScript中最成熟的对象关系映射器（ORM）
 import { Connection } from 'typeorm';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_PIPE, APP_FILTER } from '@nestjs/core';
 // import { Photo } from './photo/photo.entity'; // 使用photo实体，需要让TypeORM知道它插入实体数组
+
+import { HttpExceptionFilter } from './common/http-exception.filter'
 
 @Module({
   imports: [
@@ -35,6 +37,11 @@ import { APP_PIPE } from '@nestjs/core';
     {
       provide: APP_PIPE,
       useClass: ValidationPipe
+    },
+
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter
     }
   ],
 })
