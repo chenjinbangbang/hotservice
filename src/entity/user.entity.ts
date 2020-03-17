@@ -1,14 +1,16 @@
-import { PrimaryGeneratedColumn, Column, Entity, BaseEntity, Double } from 'typeorm';
+import { PrimaryGeneratedColumn, Column, Entity, BaseEntity, Double, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
+// @Entity('my_users') // 自定义表名
 @Entity()
 export class User extends BaseEntity {
+  // 是一个主列，该列将使用自动增量值自动生成，它将int使用auto-increment/serial/c创建列sequence。您无需再保存之前手动分配其值-值将自动生成
   @PrimaryGeneratedColumn({ type: 'bigint', comment: '用户编号' })
   id: number;
 
-  @Column({ type: 'bigint', comment: '师傅编号', nullable: true })
+  @Column({ type: 'bigint', comment: '师傅编号' })
   referrer_user_id: number;
 
-  @Column({ type: 'varchar', comment: '用户名' })
+  @Column({ type: 'varchar', comment: '用户名', unique: true })
   username: string;
 
   @Column({ type: 'varchar', comment: '密码' })
@@ -32,6 +34,14 @@ export class User extends BaseEntity {
   @Column({ type: 'timestamp', comment: '最后登录时间', default: () => 'CURRENT_TIMESTAMP' })
   last_login_time: Date;
 
+  // 是自动设置为实体的插入日期的特殊列，您无需设置此列-它会自动设置
+  @CreateDateColumn()
+  createTime: Date;
+
+  // 是一个特殊列，该列在您每次调用save实体管理器或存储库时自动设置为实体的更新时间。您无需设置此列-它会自动设置
+  @UpdateDateColumn()
+  updateTime: Date;
+
   @Column({ type: 'varchar', comment: '登录凭证' })
   token: string;
 
@@ -41,10 +51,10 @@ export class User extends BaseEntity {
   @Column({ type: 'tinyint', comment: '角色', default: 0 })
   role: number;
 
-  @Column({ type: 'float', comment: '金币', default: 0, precision: 2 }) // precision精度没生效
+  @Column({ type: 'float', comment: '金币', default: 0, scale: 2, precision: 10 }) // scale：十进制列的比例，代表小数点右边的位数，并且不得大于精度。用于某些列类型
   gold: number;
 
-  @Column({ type: 'float', comment: '现金', default: 0, precision: 2 })
+  @Column({ type: 'float', comment: '现金', default: 0, scale: 2, precision: 10 })
   wealth: number;
 
   @Column({ type: 'tinyint', comment: '是否被冻结', default: 0 })
