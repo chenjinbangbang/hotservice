@@ -159,10 +159,10 @@ export class UserDtoList {
   @IsString()
   readonly body_idcard_src: string;
 
-  @ApiProperty({
-    description: '是否绑定了平台账号'
-  })
-  @IsInt()
-  readonly isPlatform: number;
+  // @ApiProperty({
+  //   description: '是否绑定了平台账号'
+  // })
+  // @IsInt()
+  // readonly isPlatform: number;
 
 }

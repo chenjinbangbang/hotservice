@@ -59,12 +59,12 @@ class UserDto {
   // @IsInt()
   readonly real_status: string;
 
-  @ApiProperty({
-    description: '是否绑定了平台账号（""：搜索全部，0：否，1：是）',
-    default: ''
-  })
-  // @IsInt()
-  readonly isPlatform: string;
+  // @ApiProperty({
+  //   description: '是否绑定了平台账号（""：搜索全部，0：否，1：是）',
+  //   default: ''
+  // })
+  // // @IsInt()
+  // readonly isPlatform: string;
 
   @ApiProperty({
     description: '注册时间'

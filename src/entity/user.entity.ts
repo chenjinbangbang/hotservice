@@ -13,7 +13,7 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', comment: '用户名', unique: true })
   username: string;
 
-  @Column({ type: 'varchar', comment: '密码' })
+  @Column({ type: 'varchar', comment: '密码', select: false })
   password: string;
 
   @Column({ type: 'varchar', comment: 'E-mail' })
