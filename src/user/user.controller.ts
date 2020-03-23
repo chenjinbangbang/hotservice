@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { User } from 'src/entity/user.entity';
 import { UserDtoList } from './dto/user.dto';
 import { ApiTags, ApiResponse, ApiBody, ApiProperty, ApiParam, ApiQuery } from '@nestjs/swagger';
-import { IsInt, IsString, IsDate, IsArray, Min } from 'class-validator';
+import { IsInt, IsString, IsDate, IsArray, Min, IsEmail } from 'class-validator';
 
 // 获取用户列表 - 实体
 class UserDto {
@@ -68,16 +68,40 @@ class UserDto {
   // readonly isPlatform: string;
 
   @ApiProperty({
-    description: '注册时间'
+    description: '注册时间',
+    type: [String]
   })
   // @IsArray()
-  readonly create_time: null | Array<any>;
+  readonly create_time: null | string[];
 
   @ApiProperty({
-    description: '最后登录时间'
+    description: '最后登录时间',
+    type: [String]
   })
   // @IsArray()
-  readonly last_login_time: null | Array<any>;
+  readonly last_login_time: null | string[];
+}
+
+// 枚举
+// enum UserRole {
+//   Admin = 'Admin',
+//   User = 'User'
+// }
+
+// 更改实名状态/审核状态
+class statusDto {
+  @ApiProperty({
+    description: '用户编号'
+  })
+  @IsInt()
+  readonly id: number
+
+  @ApiProperty({
+    description: '改变的状态（0：未实名，1：待审核，2：审核不通过，3：已实名）',
+    default: 0
+  })
+  @IsInt()
+  readonly real_status: number
 }
 
 @ApiTags('用户相关') // 要将控制器附加到特定标签
@@ -86,21 +110,15 @@ export class UserController {
   constructor(private readonly userService: UserService) { }
 
   // 根据uid查询推荐人
-  @ApiBody({
-    // schema: {
-    //   type: 'array',
-    //   items: {
-    //     type: 'array',
-    //     items: {
-    //       type: 'number'
-    //     }
-    //   }
-    // }
-    isArray: 
-  })
+  @ApiQuery({ name: 'uid', description: '推荐人uid' })
+  // @ApiResponse({ status: 200, description: 'OK' })
+  // @ApiResponse({ status: 401, description: 'Unauthorized' })
+  // @ApiResponse({ status: 403, description: 'Forbidden' })
+  // @ApiResponse({ status: 404, description: 'Not Found' })
   @Get('referrer_username')
-  findReferrer(@Query('referrer_user_id') referrer_user_id) {
-    return this.userService.findReferrer(referrer_user_id)
+  findReferrer(@Query('uid') uid) {
+    console.log(uid);
+    return this.userService.findReferrer(uid);
   }
 
   // 获取用户列表
@@ -111,12 +129,30 @@ export class UserController {
     return this.userService.findAll(body);
   }
 
-  @Put()
-  // @ApiBody({ type: [UserDto] }) // 
-  async update(@Body() body: UserDto) {
-    console.log(body)
-    await this.userService.update(body);
+  // 更改实名状态/审核状态
+  @Put('identity/status')
+  @ApiBody({ type: statusDto })
+  identityStatus(@Body() body: statusDto) {
+    console.log(body);
+    return this.userService.identityStatus(body);
+  }
 
+  // 检查用户名是否存在
+  @Get('check/username')
+  @ApiQuery({ name: 'username', description: '用户名' })
+  checkUsername(@Query('username') username) {
+    console.log(username);
+    return this.userService.checkUsername(username);
+  }
+
+  // 检查邮箱是否存在
+  @Get('check/email')
+  @ApiQuery({ name: 'email', description: '邮箱' })
+  // @IsEmail()
+  @IsString()
+  checkEmail(@Query('email') email) {
+    console.log(email);
+    return this.userService.checkEmail(email);
   }
 
 }

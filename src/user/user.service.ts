@@ -10,20 +10,19 @@ import { response } from 'express';
 export class UserService {
   constructor(@InjectRepository(User) private readonly userRepo: Repository<User>) { }
 
-  // 判断某个用户是否存在（根据id查询）
-  async findOne(id) {
-    let res = await this.userRepo.findOne(id);
-    return res;
-  }
-
   // 根据uid查询推荐人
-  async findReferrer(referrer_user_id) {
-    let isExist = await this.findOne(referrer_user_id);
-    console.log(isExist);
+  async findReferrer(uid) {
+    let res = await this.userRepo.findOne(uid);
+    console.log(res);
+    if (res) {
+      return resFormat(true, res.username, null);
+    } else {
+      return resFormat(false, null, '推荐人不存在');
+    }
 
-    let res = await this.userRepo.findOne(referrer_user_id)
-    return resFormat(true, res, null);
+    // let res = await this.userRepo.findOne(referrer_user_id)
   }
+
 
   // 获取用户列表
   async findAll(data) {
@@ -78,17 +77,48 @@ export class UserService {
     }
   }
 
-  async update(data) {
-    let result = await this.userRepo.update(data.id, data);
-    console.log(result);
+  // 更改实名状态/审核状态
+  async identityStatus(data) {
 
-    return result;
-    // if (result[0].affectedRows > 0) {
-    //   return { success: true, msg: '更新数据成功', data: null };
-    // } else {
-    //   return { success: false, msg: '更新数据失败', data: null };
-    // }
+    // 只能输入0,1,2,3
+    if (![0, 1, 2, 3].includes(data.real_status)) {
+      return resFormat(false, null, '实名状态/审核状态参数异常');
+    }
 
+    let isExist = await this.userRepo.findOne(data.id);
+    if (!isExist) {
+      return resFormat(false, null, '该用户不存在');
+    }
+
+    let res = await this.userRepo.update(data.id, data);
+    console.log(res);
+
+    // return res;
+    if (res.raw.affectedRows > 0) {
+      return resFormat(true, null, '更改实名状态/审核状态成功');
+    } else {
+      return resFormat(false, null, '更改实名状态/审核状态失败');
+    }
+  }
+
+  // 检查用户名是否存在
+  async checkUsername(username) {
+    let res = await this.userRepo.findOne({ username });
+    if (!res) {
+      return resFormat(true, null, '用户名可注册');
+    } else {
+      return resFormat(false, null, '用户名已注册');
+    }
+  }
+
+  // 检查邮箱是否存在
+  async checkEmail(email) {
+    let res = await this.userRepo.findOne({ email });
+    if (!res) {
+      return resFormat(true, null, '该邮箱不存在，可注册');
+    } else {
+      return resFormat(false, null, '该邮箱已存在，不可注册');
+    }
   }
 
 }
