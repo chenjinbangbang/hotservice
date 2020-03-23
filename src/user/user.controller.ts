@@ -1,9 +1,9 @@
-import { Controller, Get, Body, Put, ForbiddenException, Res, Post } from '@nestjs/common';
+import { Controller, Get, Body, Put, ForbiddenException, Res, Post, Param, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from 'src/entity/user.entity';
 import { UserDtoList } from './dto/user.dto';
-import { ApiTags, ApiResponse, ApiBody, ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsString, IsDate, IsArray } from 'class-validator';
+import { ApiTags, ApiResponse, ApiBody, ApiProperty, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { IsInt, IsString, IsDate, IsArray, Min } from 'class-validator';
 
 // 获取用户列表 - 实体
 class UserDto {
@@ -12,6 +12,7 @@ class UserDto {
     default: 1
   })
   @IsInt()
+  @Min(1, { message: '当前页不能少于1' })
   readonly page: number;
 
   @ApiProperty({
@@ -19,13 +20,13 @@ class UserDto {
     default: 10
   })
   @IsInt()
+  @Min(1, { message: '一页的条数不能少于1' })
   readonly pageNum: number;
 
   // 模糊搜索：编号(id)，用户名(username)，师傅(referrer_username)，E-mail(email)，QQ(qq)，手机号(mobile)，冻结原因(freeze_reason)，真实姓名(name)，身份证号码(idcardno)
   @ApiProperty({
     // required: false,
     description: '查询关键字，模糊搜索（编号，用户名，师傅，E-mail，QQ，手机号，冻结原因，真实姓名，身份证号码）',
-
   })
   @IsString()
   readonly search: string;
@@ -83,6 +84,24 @@ class UserDto {
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) { }
+
+  // 根据uid查询推荐人
+  @ApiBody({
+    // schema: {
+    //   type: 'array',
+    //   items: {
+    //     type: 'array',
+    //     items: {
+    //       type: 'number'
+    //     }
+    //   }
+    // }
+    isArray: 
+  })
+  @Get('referrer_username')
+  findReferrer(@Query('referrer_user_id') referrer_user_id) {
+    return this.userService.findReferrer(referrer_user_id)
+  }
 
   // 获取用户列表
   @Post('list')
