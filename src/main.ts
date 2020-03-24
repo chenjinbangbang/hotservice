@@ -11,6 +11,7 @@ async function bootstrap() {
 
   // 配置swagger选项对象
   const options = new DocumentBuilder() // DocumentBuilder有助于构建符合OpenAPI规范的基础文档。
+    // .addSecurity('basic', { type: 'http', scheme: 'basic' }) // 使用安全性机制
     .setTitle('Hot 接口文档') // 标题
     .setDescription('The hot API description') // 描述
     .setVersion('1.0') // 版本

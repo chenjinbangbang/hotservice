@@ -32,11 +32,17 @@ class UserDto {
   readonly search: string;
 
   // 精准搜索：角色(role)，是否被冻结(freeze_status)，vip(isVip)，实名状态(real_status)，是否绑定了平台账号(isPlatform)，注册时间(create_time)，最后登录时间(last_login_time)
+  // @ApiProperty({
+  //   description: '角色（""：搜索全部，0：刷手，1：创作者，2：管理者）',
+  //   default: ''
+  // })
+  // // @IsString()
+  // readonly role: string;
   @ApiProperty({
-    description: '角色（""：搜索全部，0：刷手，1：创作者，2：管理者）',
+    description: '角色（""：搜索全部，user：刷手，origin：创作者，admin：管理者）',
+    enum: ['user', 'origin', 'admin'],
     default: ''
   })
-  // @IsString()
   readonly role: string;
 
   @ApiProperty({
@@ -148,11 +154,17 @@ export class UserController {
   // 检查邮箱是否存在
   @Get('check/email')
   @ApiQuery({ name: 'email', description: '邮箱' })
-  // @IsEmail()
-  @IsString()
   checkEmail(@Query('email') email) {
     console.log(email);
     return this.userService.checkEmail(email);
+  }
+
+  // 检查QQ是否存在
+  @Get('check/qq')
+  @ApiQuery({ name: 'qq', description: 'QQ号' })
+  checkQQ(@Query('qq') qq) {
+    console.log(qq);
+    return this.userService.checkQQ(qq);
   }
 
 }

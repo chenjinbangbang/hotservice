@@ -48,8 +48,10 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', comment: '用户头像', default: '' })
   head_thumb: string;
 
-  @Column({ type: 'tinyint', comment: '角色', default: 0 })
-  role: number;
+  // @Column({ type: 'tinyint', comment: '角色', default: 0 })
+  // role: number;
+  @Column({ type: 'enum', enum: ['user', 'origin', 'admin'], default: 'user' })
+  role: string
 
   @Column({ type: 'float', comment: '金币', default: 0, scale: 2, precision: 10 }) // scale：十进制列的比例，代表小数点右边的位数，并且不得大于精度。用于某些列类型
   gold: number;

@@ -121,4 +121,18 @@ export class UserService {
     }
   }
 
+  // 检查QQ是否存在
+  async checkQQ(qq) {
+    if (!/^[1-9]{1}[0-9]{4,11}$/.test(qq)) {
+      return resFormat(true, null, '请输入正确的QQ号');
+    }
+
+    let res = await this.userRepo.findOne({ qq });
+    if (!res) {
+      return resFormat(true, null, '该QQ号不存在，可注册');
+    } else {
+      return resFormat(false, null, '该QQ号已存在，不可注册');
+    }
+  }
+
 }
