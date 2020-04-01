@@ -13,6 +13,9 @@ import { APP_PIPE, APP_FILTER } from '@nestjs/core';
 
 import { HttpExceptionFilter } from './common/http-exception.filter'
 
+// 字典表
+import { Dict } from './entity/dict.entity';
+
 @Module({
   imports: [
     // forRoot()方法接受与来自TypeORM包的createConnection()相同的配置对象
@@ -31,6 +34,7 @@ import { HttpExceptionFilter } from './common/http-exception.filter'
     ),
     UserModule,
     // AuthModule
+    TypeOrmModule.forFeature([Dict])
   ],
   controllers: [AppController],
   providers: [AppService,
