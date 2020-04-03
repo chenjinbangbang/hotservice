@@ -23,7 +23,6 @@ export class UserService {
     // let res = await this.userRepo.findOne(referrer_user_id)
   }
 
-
   // 获取用户列表
   async findAll(data) {
     console.log(data);

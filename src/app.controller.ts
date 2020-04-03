@@ -1,8 +1,8 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { AppService } from './app.service';
-import { ApiQuery } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 
-
+@ApiTags('基础服务')
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) { }

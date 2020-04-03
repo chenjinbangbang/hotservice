@@ -95,7 +95,7 @@ class UserDto {
 // }
 
 // 更改实名状态/审核状态
-class statusDto {
+class StatusDto {
   @ApiProperty({
     description: '用户编号'
   })
@@ -108,6 +108,11 @@ class statusDto {
   })
   @IsInt()
   readonly real_status: number
+}
+
+class EmailDto {
+  @IsEmail()
+  readonly email: string
 }
 
 @ApiTags('用户相关') // 要将控制器附加到特定标签
@@ -137,8 +142,8 @@ export class UserController {
 
   // 更改实名状态/审核状态
   @Put('identity/status')
-  @ApiBody({ type: statusDto })
-  identityStatus(@Body() body: statusDto) {
+  @ApiBody({ type: StatusDto })
+  identityStatus(@Body() body: StatusDto) {
     console.log(body);
     return this.userService.identityStatus(body);
   }
@@ -154,9 +159,9 @@ export class UserController {
   // 检查邮箱是否存在
   @Get('check/email')
   @ApiQuery({ name: 'email', description: '邮箱' })
-  checkEmail(@Query('email') email) {
-    console.log(email);
-    return this.userService.checkEmail(email);
+  checkEmail(@Query() query: EmailDto) { // emailDto可验证，一般用于@ApiQuery,@Apiparam
+    console.log(query.email);
+    return this.userService.checkEmail(query.email);
   }
 
   // 检查QQ是否存在
