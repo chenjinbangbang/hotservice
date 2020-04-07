@@ -2,7 +2,7 @@ import { Controller, Get, Body, Put, ForbiddenException, Res, Post, Param, Query
 import { UserService } from './user.service';
 // import { User } from 'src/entity/user.entity';
 import { UserSearchDto, UserStatusDto, UserDto, EmailDto, goldBuyDto } from './dto/user.dto';
-import { ApiTags, ApiResponse, ApiBody, ApiProperty, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiBody, ApiProperty, ApiParam, ApiQuery, ApiOperation } from '@nestjs/swagger';
 import { IsInt, IsString, IsDate, IsArray, Min, IsEmail } from 'class-validator';
 
 // 枚举
@@ -18,6 +18,7 @@ export class UserController {
 
   // 根据uid查询推荐人
   @ApiQuery({ name: 'uid', description: '推荐人uid' })
+  @ApiOperation({ summary: '根据uid查询推荐人' })
   // @ApiResponse({ status: 200, description: 'OK' })
   // @ApiResponse({ status: 401, description: 'Unauthorized' })
   // @ApiResponse({ status: 403, description: 'Forbidden' })
@@ -46,6 +47,7 @@ export class UserController {
 
   // 检查用户名是否存在
   @Get('check/username')
+  @ApiOperation({ summary: '检查用户名是否存在' })
   @ApiQuery({ name: 'username', description: '用户名' })
   checkUsername(@Query('username') username) {
     console.log(username);
@@ -54,6 +56,7 @@ export class UserController {
 
   // 检查邮箱是否存在
   @Get('check/email')
+  @ApiOperation({ summary: '检查邮箱是否存在' })
   @ApiQuery({ name: 'email', description: '邮箱' })
   checkEmail(@Query() query: EmailDto) { // emailDto可验证，一般用于@ApiQuery,@Apiparam
     console.log(query.email);
@@ -62,6 +65,7 @@ export class UserController {
 
   // 检查QQ是否存在
   @Get('check/qq')
+  @ApiOperation({ summary: '检查QQ是否存在' })
   @ApiQuery({ name: 'qq', description: 'QQ号' })
   checkQQ(@Query('qq') qq) {
     console.log(qq);
