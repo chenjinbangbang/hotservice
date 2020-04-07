@@ -2,6 +2,7 @@ import { Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
+import { BasicModule } from './basic/basic.module';
 import { UserModule } from './user/user.module';
 // import { AuthModule } from './auth/auth.module';
 
@@ -13,8 +14,7 @@ import { APP_PIPE, APP_FILTER } from '@nestjs/core';
 
 import { HttpExceptionFilter } from './common/http-exception.filter'
 
-// 字典表
-import { Dict } from './entity/dict.entity';
+
 
 @Module({
   imports: [
@@ -33,8 +33,7 @@ import { Dict } from './entity/dict.entity';
       }
     ),
     UserModule,
-    // AuthModule
-    TypeOrmModule.forFeature([Dict])
+    BasicModule
   ],
   controllers: [AppController],
   providers: [AppService,
