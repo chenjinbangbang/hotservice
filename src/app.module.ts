@@ -2,9 +2,6 @@ import { Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-import { UserModule } from './user/user.module';
-// import { AuthModule } from './auth/auth.module';
-
 // 连接mysql数据库
 import { TypeOrmModule } from '@nestjs/typeorm'; // 使用TypeORM是因为它是TypeScript中最成熟的对象关系映射器（ORM）
 import { Connection } from 'typeorm';
@@ -13,9 +10,15 @@ import { APP_PIPE, APP_FILTER } from '@nestjs/core';
 
 import { HttpExceptionFilter } from './common/http-exception.filter'
 
-// 字典表
-import { Dict } from './entity/dict.entity';
+// 模块
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { BasicModule } from './basic/basic.module';
+import { PayModule } from './pay/pay.module';
 
+/**
+ * 全局模块
+ */
 @Module({
   imports: [
     // forRoot()方法接受与来自TypeORM包的createConnection()相同的配置对象
@@ -32,12 +35,14 @@ import { Dict } from './entity/dict.entity';
         synchronize: true // 定义数据库表结构与实体类字段同步（这里一旦数据库少了字段就会自动加入，根据需要来使用）
       }
     ),
+    BasicModule,
+    AuthModule,
     UserModule,
-    // AuthModule
-    TypeOrmModule.forFeature([Dict])
+    PayModule
   ],
   controllers: [AppController],
-  providers: [AppService,
+  providers: [
+    AppService,
     {
       provide: APP_PIPE,
       useClass: ValidationPipe

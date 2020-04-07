@@ -1,11 +1,15 @@
-import { PrimaryGeneratedColumn, Column, Entity, BaseEntity, Double, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { PrimaryGeneratedColumn, Column, Entity, BaseEntity, Double, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Pay } from './pay.entity';
 
 // @Entity('my_users') // 自定义表名
 @Entity()
 export class User extends BaseEntity {
-  // 是一个主列，该列将使用自动增量值自动生成，它将int使用auto-increment/serial/c创建列sequence。您无需再保存之前手动分配其值-值将自动生成
+  // 是一个主列，该列将使用自动增量值自动生成，它将int使用auto-increment/serial/创建列sequence。您无需再保存之前手动分配其值-值将自动生成
   @PrimaryGeneratedColumn({ type: 'bigint', comment: '用户编号' })
   id: number;
+
+  @OneToMany(type => Pay, pay => pay.user)
+  pays: Pay[]
 
   @Column({ type: 'bigint', comment: '师傅编号' })
   referrer_user_id: number;
@@ -42,15 +46,12 @@ export class User extends BaseEntity {
   @UpdateDateColumn()
   updateTime: Date;
 
-  @Column({ type: 'varchar', comment: '登录凭证' })
-  token: string;
-
   @Column({ type: 'varchar', comment: '用户头像', default: '' })
   head_thumb: string;
 
   // @Column({ type: 'tinyint', comment: '角色', default: 0 })
   // role: number;
-  @Column({ type: 'enum', enum: ['user', 'origin', 'admin'], default: 'user' })
+  @Column({ type: 'enum', enum: ['user', 'origin', 'admin'], default: 'user', comment: '用户角色' })
   role: string
 
   @Column({ type: 'float', comment: '金币', default: 0, scale: 2, precision: 10 }) // scale：十进制列的比例，代表小数点右边的位数，并且不得大于精度。用于某些列类型

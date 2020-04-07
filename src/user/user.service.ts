@@ -1,14 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { User } from 'src/entity/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, getManager } from 'typeorm';
+import { Repository } from 'typeorm';
 // import { UserDtoList } from './dto/user.dto';
 import { removeRawMany, resFormat } from 'src/common/global';
-import { response } from 'express';
 
 @Injectable()
 export class UserService {
   constructor(@InjectRepository(User) private readonly userRepo: Repository<User>) { }
+
+  // 用于登录
+  async findOne(username: string, password: string): Promise<User | undefined> {
+    return this.userRepo.findOne({ username, password });
+  }
 
   // 根据uid查询推荐人
   async findReferrer(uid) {
@@ -42,7 +46,6 @@ export class UserService {
       let res = await this.userRepo.createQueryBuilder('user')
         // .select(['user.id', 'user.username'])
         // .where('username like :search or email like :search')
-
         .select(['user.*', 'u.username referrer_username'])
         .leftJoinAndSelect(User, 'u', 'user.referrer_user_id = u.id')
         .where('(user.id like :search or user.username like :search or user.email like :search or user.qq like :search or user.mobile like :search or user.freeze_reason like :search or user.name like :search or user.idcardno like :search)')
@@ -62,7 +65,7 @@ export class UserService {
       // .getOne(); // 返回查询的第一条数据
       // return res;
 
-      removeRawMany(res, 'u_', ['password', 'token']);
+      removeRawMany(res, 'u_', ['password']);
 
       // 查询总数
       let count = await this.userRepo.count();
@@ -132,6 +135,11 @@ export class UserService {
     } else {
       return resFormat(false, null, '该QQ号已存在，不可注册');
     }
+  }
+
+  // 购买金币
+  async boldBuy(data) {
+
   }
 
 }
