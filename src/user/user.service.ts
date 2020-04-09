@@ -3,21 +3,21 @@ import { User } from 'src/entity/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 // import { UserDtoList } from './dto/user.dto';
-import { removeRawMany, resFormat } from 'src/common/global';
+import { removeRawMany, removeRawOne, resFormat } from 'src/common/global';
 
 @Injectable()
 export class UserService {
   constructor(@InjectRepository(User) private readonly userRepo: Repository<User>) { }
 
-  // 用于登录
-  async findOne(username: string, password: string): Promise<User | undefined> {
+  // 用户登录
+  async login(username: string, password: string): Promise<User | undefined> {
     return this.userRepo.findOne({ username, password });
   }
 
   // 根据uid查询推荐人
   async findReferrer(uid) {
     let res = await this.userRepo.findOne(uid);
-    console.log(res);
+    // console.log(res);
     if (res) {
       return resFormat(true, res.username, null);
     } else {
@@ -28,7 +28,7 @@ export class UserService {
   }
 
   // 获取用户列表
-  async findAll(data) {
+  async userList(data) {
     console.log(data);
 
     let searchData: any = {};
@@ -65,7 +65,8 @@ export class UserService {
       // .getOne(); // 返回查询的第一条数据
       // return res;
 
-      removeRawMany(res, 'u_', ['password']);
+      // 使用getRawMany()方法时，删除所有原始数据，并且不可返回password和password_security
+      removeRawMany(res, 'u_', ['password', 'password_security']);
 
       // 查询总数
       let count = await this.userRepo.count();
@@ -73,6 +74,38 @@ export class UserService {
 
       // return { success: true, data: { lists: res, total: count }, msg: null };
       return resFormat(true, { lists: res, total: count }, null);
+    } catch (err) {
+      console.log(err);
+      return resFormat(false, null, err);
+    }
+  }
+
+  // 获取某个用户的信息
+  async userInfo(id) {
+    // let { id } = data
+
+    // let searchData: any = {};
+    // for (let key in data) {
+    //   if (!['page', 'pageNum', 'create_time', 'last_login_time'].includes(key)) {
+    //     searchData[key] = `%${data[key]}%`;
+    //   }
+    // }
+    // console.log(searchData)
+
+    // let builder = this.userRepo.createQueryBuilder('u');
+
+    // return this.userRepo.find();
+    try {
+      let res = await this.userRepo.createQueryBuilder('user')
+        .select(['user.*', 'u.username referrer_username'])
+        .leftJoinAndSelect(User, 'u', 'user.referrer_user_id = u.id')
+        .where('user.id = :id', { id })
+        .getRawOne();
+
+      // 使用getRawOne()方法时，删除所有原始数据，并且不可返回password和password_security
+      removeRawOne(res, 'u_', ['password', 'password_security']);
+
+      return resFormat(true, res, null);
     } catch (err) {
       console.log(err);
       return resFormat(false, null, err);
@@ -125,10 +158,6 @@ export class UserService {
 
   // 检查QQ是否存在
   async checkQQ(qq) {
-    if (!/^[1-9]{1}[0-9]{4,11}$/.test(qq)) {
-      return resFormat(true, null, '请输入正确的QQ号');
-    }
-
     let res = await this.userRepo.findOne({ qq });
     if (!res) {
       return resFormat(true, null, '该QQ号不存在，可注册');
@@ -137,9 +166,34 @@ export class UserService {
     }
   }
 
-  // 购买金币
-  async boldBuy(data) {
+  // 检查手机号码是否存在
+  async checkMobile(mobile) {
+    let res = await this.userRepo.findOne({ mobile });
+    if (!res) {
+      return resFormat(true, null, '该手机号码不存在，可注册');
+    } else {
+      return resFormat(false, null, '该手机号码已存在，不可注册');
+    }
+  }
 
+  // 购买金币
+  async goldBuy(id, data) {
+    // let res = await this.userRepo.update(id, data);
+    // let res = await this.userRepo.createQueryBuilder('user')
+    //   .update(User)
+    //   .set({ gold: data.gold })
+    //   .where('id = :id', { id })
+    //   .execute()
+
+    let res = await this.userRepo.query(`update user set gold = concat(gold + ${data.gold}) where id = ${id}`);
+    console.log(res);
+
+    // return res;
+    if (res.affectedRows > 0) {
+      return resFormat(true, null, '购买金币成功');
+    } else {
+      return resFormat(false, null, '购买金币失败');
+    }
   }
 
 }

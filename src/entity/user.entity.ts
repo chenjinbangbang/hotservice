@@ -11,7 +11,7 @@ export class User extends BaseEntity {
   @OneToMany(type => Pay, pay => pay.user)
   pays: Pay[]
 
-  @Column({ type: 'bigint', comment: '师傅编号' })
+  @Column({ type: 'bigint', comment: '师傅编号', nullable: true })
   referrer_user_id: number;
 
   @Column({ type: 'varchar', comment: '用户名', unique: true })
@@ -72,7 +72,7 @@ export class User extends BaseEntity {
   @Column({ type: 'tinyint', comment: '实名状态/审核状态', default: 0 })
   real_status: number;
 
-  @Column({ type: 'tinyint', comment: '实名审核不通过原因' })
+  @Column({ type: 'tinyint', comment: '实名审核不通过原因', nullable: true })
   real_reason: number;
 
   @Column({ type: 'varchar', comment: '真实姓名', default: '' })

@@ -1,8 +1,8 @@
-import { IsString, IsInt, IsBoolean, Length, IsDate, IsDateString, IsNumber, IsEmail } from 'class-validator';
+import { IsString, IsInt, IsBoolean, Length, IsDate, IsDateString, IsNumber, IsEmail, Min, Matches, IsMobilePhone } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { pageDto } from 'src/common/dto';
 
-// 获取用户列表 - 实体
+// 获取用户列表实体
 export class UserSearchDto extends pageDto {
   // 模糊搜索：编号(id)，用户名(username)，师傅(referrer_username)，E-mail(email)，QQ(qq)，手机号(mobile)，冻结原因(freeze_reason)，真实姓名(name)，身份证号码(idcardno)
   @ApiProperty({
@@ -69,7 +69,7 @@ export class UserSearchDto extends pageDto {
   readonly last_login_time: null | string[];
 }
 
-// 更改实名状态/审核状态
+// 更改实名状态/审核状态实体
 export class UserStatusDto {
   @ApiProperty({
     description: '用户编号'
@@ -85,23 +85,57 @@ export class UserStatusDto {
   readonly real_status: number
 }
 
-// 验证邮箱
-export class EmailDto {
-  @IsEmail()
-  readonly email: string
+// 验证用户名实体
+export class UsernameDto {
+  @ApiProperty({
+    description: '用户名'
+  })
+  @IsString()
+  @Matches(/^\w{6,18}$/, { message: '请输入6-18个字符的字母/数字/下划线组成的用户名' }) // 6-18个字符，字母/数字/下划线组成
+  readonly username: string;
 }
 
-// 验证金币
+// 验证邮箱实体
+export class EmailDto {
+  @ApiProperty({
+    description: 'E-mail'
+  })
+  @IsString()
+  @IsEmail({}, { message: '请输入正确的邮箱' })
+  readonly email: string;
+}
+
+// 验证QQ号实体
+export class QQDto {
+  @ApiProperty({
+    description: 'QQ号'
+  })
+  @IsString()
+  @Matches(/^[1-9]{1}[0-9]{4,11}$/, { message: '请输入正确的QQ号' })
+  readonly qq: string;
+}
+
+// 验证手机号码实体
+export class MobileDto {
+  @ApiProperty({
+    description: '手机号码'
+  })
+  @IsString()
+  @IsMobilePhone('zh-CN', { message: '请输入正确的手机号码' })
+  readonly mobile: string;
+}
+
+// 验证金币实体
 export class goldBuyDto {
-
-
   @ApiProperty({
     description: '金币'
   })
   @IsNumber()
+  @Min(0)
   readonly gold: number;
 }
 
+// 整个用户信息实体
 export class UserDto {
   @ApiProperty({
     description: '用户编号'
@@ -131,6 +165,7 @@ export class UserDto {
     description: '用户名'
   })
   @IsString()
+  @Matches(/^\w{6,18}$/, { message: '请输入6-18个字符的字母/数字/下划线组成的用户名' }) // 6-18个字符，字母/数字/下划线组成
   readonly username: string;
 
   @ApiProperty({
@@ -140,21 +175,24 @@ export class UserDto {
   readonly password: string;
 
   @ApiProperty({
-    description: 'E-mail'
+    default: 'E-mail'
   })
   @IsString()
-  readonly email: string;
+  @IsEmail()
+  readonly email: string
 
   @ApiProperty({
     description: 'QQ'
   })
   @IsString()
+  @Matches(/^[1-9]{1}[0-9]{4,11}$/, { message: '请输入正确的QQ号' })
   readonly qq: string;
 
   @ApiProperty({
     description: '手机号码'
   })
   @IsString()
+  @IsMobilePhone('zh-CN')
   readonly mobile: string;
 
   @ApiProperty({
@@ -182,10 +220,11 @@ export class UserDto {
   readonly head_thumb: string;
 
   @ApiProperty({
-    description: '角色'
+    description: '角色（user：刷手，origin：创作者，admin：管理者）',
+    enum: ['user', 'origin', 'admin'],
+    default: ''
   })
-  @IsInt()
-  readonly role: number;
+  readonly role: string;
 
   @ApiProperty({
     description: '金币'

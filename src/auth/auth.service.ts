@@ -7,18 +7,25 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt'; // 不要忘记将jwtService提供者注入到AuthService
 import { jwtConstants } from './constants';
 import { UserService } from 'src/user/user.service';
+import { resFormat } from 'src/common/global';
+import { User } from 'src/entity/user.entity';
+
+// 加密crypto
+import crypto = require('crypto');
+import { Repository } from 'typeorm';
 
 
 @Injectable()
 export class AuthService {
   constructor(
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
     private readonly userService: UserService,
     private readonly jwtService: JwtService
   ) { }
 
   // 验证用户，先在数据查找该用户， 然后把result放到token信息里面，在local.strategy.ts执行
   async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.userService.findOne(username, pass);
+    const user = await this.userService.login(username, pass);
 
     if (user) {
       return user;
@@ -26,7 +33,7 @@ export class AuthService {
     return null;
   }
 
-  // 登录方法，在app.controller.ts执行，把需要的用户信息存到token里面
+  // 用户登录，登录方法，在auth.controller.ts执行，把需要的用户信息存到token里面
   async login(user: any) {
     const payload = { username: user.username, sub: user.id }; // sub属性：保持我们的id值域JWT标准一致
     console.log('token信息：', payload)
@@ -34,6 +41,69 @@ export class AuthService {
       access_token: this.jwtService.sign(payload), // sign()函数：用于从用户对象属性的子集生产jwt
       expiresIn: jwtConstants.expiresIn * 1000
     }
+  }
+
+  // 用户注册
+  async register(data) {
+
+    // 检查用户名是否存在
+    const checkUsername = await this.userService.checkUsername(data.username);
+    console.log(checkUsername);
+    if (!checkUsername.success) {
+      return checkUsername;
+    }
+
+    // 检查邮箱是否存在
+    const checkEmail = await this.userService.checkEmail(data.email);
+    console.log(checkEmail);
+    if (!checkEmail.success) {
+      return checkEmail;
+    }
+
+    // 检查QQ号是否存在
+    const checkQQ = await this.userService.checkQQ(data.qq);
+    console.log(checkQQ);
+    if (!checkQQ.success) {
+      return checkQQ;
+    }
+
+    // 检查手机号码是否存在
+    const checkMobile = await this.userService.checkMobile(data.qq);
+    console.log(checkMobile);
+    if (!checkMobile.success) {
+      return checkMobile;
+    }
+
+    // 密码和确认密码不一致
+    if (data.password !== data.password_confirm) {
+      return resFormat(false, null, '密码和确认密码不一致')
+    }
+
+    // 安全密码不能和密码相同
+    if (data.password === data.password_security) {
+      return resFormat(false, null, '安全密码不能和密码相同')
+    }
+
+    // 安全密码和确认安全密码不一致
+    if (data.password_security !== data.password_security_confirm) {
+      return resFormat(false, null, '安全密码和确认安全密码不一致')
+    }
+
+    // 密码加密
+    data.password = crypto.createHmac('sha256', data.password).update('hot').digest('hex');
+    data.password_confirm = crypto.createHmac('sha256', data.password_confirm).update('hot').digest('hex');
+    data.password_security = crypto.createHmac('sha256', data.password_security).update('hot').digest('hex');
+    data.password_security_confirm = crypto.createHmac('sha256', data.password_security_confirm).update('hot').digest('hex');
+
+    // 新增用户
+    let user = this.userRepo.create(data);
+    let res = await this.userRepo.save(user);
+
+    console.log(res);
+    // 用户登录
+    let loginRes = await this.login(res);
+
+    return resFormat(true, loginRes, '注册成功');
   }
 
 
