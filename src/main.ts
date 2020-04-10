@@ -16,7 +16,7 @@ async function bootstrap() {
   // console.log(join(__dirname, '..', 'uploads'));
   app.useStaticAssets(
     join(__dirname, '..', 'uploads'),
-    // { prefix: '/static/' } // 配置虚拟路径
+    { prefix: '/static/' } // 配置虚拟路径
   ) // 配置静态资源服务器
   // app.setBaseViewsDir(join(__dirname, '..', 'views')) // 配置html模板
   // app.setViewEngine('jade') // 配置模板引擎

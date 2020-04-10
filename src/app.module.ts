@@ -15,6 +15,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { BasicModule } from './basic/basic.module';
 import { PayModule } from './pay/pay.module';
+import { BankModule } from './bank/bank.module';
 
 /**
  * 全局模块
@@ -38,7 +39,8 @@ import { PayModule } from './pay/pay.module';
     AuthModule,
     BasicModule,
     UserModule,
-    PayModule
+    PayModule,
+    BankModule
   ],
   controllers: [AppController],
   providers: [

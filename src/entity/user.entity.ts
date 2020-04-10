@@ -1,5 +1,6 @@
 import { PrimaryGeneratedColumn, Column, Entity, BaseEntity, Double, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Pay } from './pay.entity';
+import { Bank } from './bank.entity';
 
 // @Entity('my_users') // 自定义表名
 @Entity()
@@ -8,8 +9,13 @@ export class User extends BaseEntity {
   @PrimaryGeneratedColumn({ type: 'bigint', comment: '用户编号' })
   id: number;
 
+  // 一个用户有多个充值记录
   @OneToMany(type => Pay, pay => pay.user)
-  pays: Pay[]
+  pays: Pay[];
+
+  // 一个用户有多张银行卡
+  // @OneToMany(type => Bank, bank => bank.user)
+  // banks: Bank[];
 
   @Column({ type: 'bigint', comment: '师傅编号', nullable: true })
   referrer_user_id: number;
@@ -32,19 +38,25 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', comment: '安全密码' })
   password_security: string;
 
-  @Column({ type: 'timestamp', comment: '注册时间', default: () => 'CURRENT_TIMESTAMP' })
+  // @Column({ type: 'timestamp', comment: '注册时间', default: () => 'CURRENT_TIMESTAMP' })
+  // create_time: Date;
+
+  // @Column({ type: 'timestamp', comment: '最后登录时间', default: () => 'CURRENT_TIMESTAMP' })
+  // last_login_time: Date;
+
+  @CreateDateColumn({ comment: '注册时间' })
   create_time: Date;
 
-  @Column({ type: 'timestamp', comment: '最后登录时间', default: () => 'CURRENT_TIMESTAMP' })
+  @UpdateDateColumn({ comment: '最后登录时间' })
   last_login_time: Date;
 
   // 是自动设置为实体的插入日期的特殊列，您无需设置此列-它会自动设置
-  @CreateDateColumn()
-  createTime: Date;
+  // @CreateDateColumn()
+  // createTime: Date;
 
   // 是一个特殊列，该列在您每次调用save实体管理器或存储库时自动设置为实体的更新时间。您无需设置此列-它会自动设置
-  @UpdateDateColumn()
-  updateTime: Date;
+  // @UpdateDateColumn()
+  // updateTime: Date;
 
   @Column({ type: 'varchar', comment: '用户头像', default: '' })
   head_thumb: string;

@@ -7,9 +7,9 @@ export class Pay extends BaseEntity {
   @PrimaryGeneratedColumn({ type: 'bigint', comment: '充值编号' })
   id: number;
 
-  // 多个充值对应一个用户
+  // 多个充值记录对应一个用户
   @ManyToOne(type => User, user => user.pays)
-  user: User
+  user: User;
 
   @Column({ comment: '交易方' })
   account: string;

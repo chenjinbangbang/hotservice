@@ -32,9 +32,9 @@ export class UserController {
     return this.userService.findReferrer(uid);
   }
 
-  // 获取用户列表
+  // 获取用户列表（后台管理）
   @Post('list')
-  @ApiOperation({ summary: '获取用户列表' })
+  @ApiOperation({ summary: '获取用户列表（后台管理）' })
   @ApiBody({ type: UserSearchDto })
   @ApiResponse({ type: [UserDto] }) // 响应的模型
   userList(@Body() body: UserSearchDto) {

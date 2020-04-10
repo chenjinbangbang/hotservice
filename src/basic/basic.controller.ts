@@ -83,7 +83,7 @@ export class BasicController {
     // console.log('protocol：', req.protocol);
     // console.log('route：', req.route);
     if (file) {
-      let data = `${req.protocol}://${req.headers.host}/${file.filename}`;
+      let data = `${req.protocol}://${req.headers.host}/static/${file.filename}`;
       return resFormat(true, data, null);
     } else {
       return resFormat(false, '上传失败', null);

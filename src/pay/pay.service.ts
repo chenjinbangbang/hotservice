@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { Pay } from 'src/entity/pay.entity';
 import { Repository } from 'typeorm';
 import { resFormat } from 'src/common/global';
-import { User } from 'src/entity/user.entity';
+// import { User } from 'src/entity/user.entity';
 
 @Injectable()
 export class PayService {
