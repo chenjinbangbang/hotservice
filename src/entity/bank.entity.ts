@@ -38,8 +38,8 @@ export class Bank extends BaseEntity {
   @Column({ type: 'tinyint', comment: '状态（0 待审核/审核中，1 未通过（审核未通过），2 正常（审核已通过））', default: 0 })
   status: number;
 
-  @Column({ type: 'tinyint', comment: '审核不通过原因（当status为1时显示）', nullable: true })
-  reason: string;
+  @Column({ type: 'tinyint', comment: '审核不通过原因（当status为1时显示）' })
+  reason: number;
 
   @CreateDateColumn()
   create_time: Date;

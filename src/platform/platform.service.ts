@@ -3,8 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Platform } from 'src/entity/platform.entity';
 import { Repository } from 'typeorm';
-import { resFormat } from 'src/common/global';
+import { resFormat, removeRawMany } from 'src/common/global';
 import { BasicService } from 'src/basic/basic.service';
+import { User } from 'src/entity/user.entity';
 
 @Injectable()
 export class PlatformService {
@@ -18,8 +19,8 @@ export class PlatformService {
     let res: any[] = await this.platformRepo.find({ user_id: user.id });
 
     // [[{platform_type: 0}...],[{platform_type: 1}...],[{platform_type: 2}...],[{platform_type: 3}...]]
-    let arr: Array<any> = [[],[],[],[]];
-    for(let item of res) {
+    let arr: Array<any> = [[], [], [], []];
+    for (let item of res) {
       arr[item.platform_type].push(item);
     }
 
@@ -63,7 +64,7 @@ export class PlatformService {
     return resFormat(true, null, `添加${platform_typeObj[data.platform_type]}成功`);
   }
 
-  // 编辑平台账号
+  // 修改平台账号
   async alter(data) {
     let isExist = await this.platformRepo.findOne(data.id);
     if (!isExist) {
@@ -74,9 +75,9 @@ export class PlatformService {
     console.log(res);
 
     if (res.raw.affectedRows > 0) {
-      return resFormat(true, null, '编辑平台账号成功');
+      return resFormat(true, null, '修改平台账号成功');
     } else {
-      return resFormat(false, null, '编辑平台账号失败');
+      return resFormat(false, null, '修改平台账号失败');
     }
   }
 
@@ -109,53 +110,32 @@ export class PlatformService {
     }
     console.log(searchData)
 
-    // let res: any = await this.platformRepo.find();
-    let res: any = await this.platformRepo.createQueryBuilder('platform')
-      .where('(name like :search or platform_num like :search)')
-      .andWhere('status like :status and reason like :reason')
-      .where(data.create_time ? 'create_time between :create_time1 and :create_time2' : '', { create_time1: data.create_time ? data.create_time[0] : '', create_time2: data.create_time ? data.create_time[1] : '' })
+    let sql = this.platformRepo.createQueryBuilder('platform')
+      .select(['platform.*', 'u.username username'])
+      .leftJoinAndSelect(User, 'u', 'platform.user_id = u.id')
+      .where('(u.username like :search or platform.platform_name like :search)')
+      .andWhere('platform.platform_type like :platform_type and platform.status like :status and platform.reason like :reason and platform.freeze_reason like :freeze_reason');
+
+    if (data.create_time) {
+      sql.andWhere('platform.create_time between :create_time1 and :create_time2', { create_time1: data.create_time[0], create_time2: data.create_time[1] });
+    }
+
+    let res: any = await sql
       .offset((data.page - 1) * data.pageNum)
       .limit(data.pageNum)
       .setParameters(searchData)
-      .getMany();
+      .getRawMany();
 
-    // 获取省市区
-    let promises: any[] = [];
-    res.forEach(item => {
-      let p = new Promise(async resolve => {
-
-        // 获取开户行名称
-        // let platformDict = await this.basicService.getDict('platform_dict');
-        // item.platform_deposit = platformDict.data[item.platform_deposit_id];
-
-        // 获取审核不通过原因
-        let reasonDict = await this.basicService.getDict('platform_reason_dict');
-        item.reason
-
-        // 获取省市区字符串
-        let region = await this.basicService.getAreaRegion({ provinceId: item.platform_province, cityId: item.platform_city, districtId: item.platform_area });
-
-        delete item.platform_province;
-        delete item.platform_city;
-        delete item.platform_area;
-        item.region = region.data;
-
-        resolve(item);
-      })
-
-      promises.push(p);
-    })
-    // console.log(promises);
-
-    let newRes = await Promise.all(promises);
+    // 使用getRawMany()方法时，删除所有原始数据
+    removeRawMany(res, 'u_');
 
     let count = await this.platformRepo.count();
 
-    return resFormat(true, { lists: newRes, total: count }, null);
+    return resFormat(true, { lists: res, total: count }, null);
   }
 
 
-  // 平台账号审核状态是否通过（后台管理）
+  // 审核平台账号（后台管理）
   async checkStatus(data) {
     const { id, status, reason } = data
     let isExist = await this.platformRepo.findOne(id);

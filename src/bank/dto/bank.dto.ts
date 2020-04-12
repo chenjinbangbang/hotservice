@@ -4,7 +4,7 @@ import { PageDto } from 'src/common/dto';
 
 // 获取银行卡列表实体
 export class SearchBankDto extends PageDto {
-  // 模糊搜索：编号(id)，用户名(username)，姓名(name)，银行卡号(bank_num)
+  // 模糊搜索：用户名(username)，姓名(name)，银行卡号(bank_num)
   @ApiProperty({
     // required: false,
     description: '查询关键字，模糊搜索（用户名，姓名，银行卡号）',
@@ -13,7 +13,7 @@ export class SearchBankDto extends PageDto {
   readonly search: string;
 
   @ApiProperty({
-    description: '审核状态（0 待审核/审核中，1 未通过（审核未通过），2 正常（审核已通过））'
+    description: '审核状态（""：搜索全部，0：待审核/审核中，1：未通过（审核未通过），2：正常（审核已通过））'
   })
   readonly status: number;
 
@@ -25,7 +25,7 @@ export class SearchBankDto extends PageDto {
   @ApiProperty({
     description: '创建时间',
     required: false,
-    nullable: null,
+    nullable: true,
     type: [String]
   })
   // @IsArray()
@@ -87,7 +87,7 @@ export class StatusDto {
   readonly id: number;
 
   @ApiProperty({
-    description: '审核状态（1 未通过（审核未通过），2 正常（审核已通过））'
+    description: '审核状态（1：未通过（审核未通过），2：正常（审核已通过））'
   })
   readonly status: number;
 

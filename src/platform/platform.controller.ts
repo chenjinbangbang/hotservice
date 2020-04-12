@@ -36,9 +36,9 @@ export class PlatformController {
     return this.platformService.create(req.user, body);
   }
 
-  // 编辑平台账号
+  // 修改平台账号
   @Put('alter')
-  @ApiOperation({ summary: '编辑平台账号' })
+  @ApiOperation({ summary: '修改平台账号' })
   alter(@Body() body: AlterPlatformDto) {
     return this.platformService.alter(body);
   }
@@ -46,21 +46,21 @@ export class PlatformController {
   // 删除平台账号
   @Delete('delete')
   @ApiOperation({ summary: '删除平台账号' })
-  @ApiQuery({ name: 'id', description: '银行卡编号', type: 'number' })
+  @ApiQuery({ name: 'id', description: '平台账号编号', type: 'number' })
   delete(@Query() query) {
     return this.platformService.delete(query);
   }
 
-  // 获取银行卡列表（后台管理）
+  // 获取平台账号列表（后台管理）
   @Post('list')
-  @ApiOperation({ summary: '获取银行卡列表（后台管理）' })
+  @ApiOperation({ summary: '获取平台账号列表（后台管理）' })
   getList(@Body() body: SearchPlatformDto) {
     return this.platformService.getList(body);
   }
 
-  // 银行卡审核状态是否通过（后台管理）
+  // 审核平台账号（后台管理）
   @Put('status')
-  @ApiOperation({ summary: '银行卡审核状态是否通过（后台管理）' })
+  @ApiOperation({ summary: '审核平台账号（后台管理）' })
   checkStatus(@Body() body: StatusDto) {
     return this.platformService.checkStatus(body);
   }

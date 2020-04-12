@@ -35,7 +35,7 @@ export class BankService {
       let p = new Promise(async resolve => {
         // 银行卡号4-14位做脱敏处理
         item.bank_num = item.bank_num.replace(item.bank_num.substring(4, 16), '******');
-        
+
         // 获取省市区字符串
         let region = await this.basicService.getAreaRegion({ provinceId: item.bank_province, cityId: item.bank_city, districtId: item.bank_area });
 
@@ -136,17 +136,23 @@ export class BankService {
     }
     console.log(searchData)
 
-    // let res: any = await this.bankRepo.find();
-    let res: any[] = await this.bankRepo.createQueryBuilder('bank')
+    let sql = this.bankRepo.createQueryBuilder('bank')
       .select(['bank.*', 'u.username username'])
-      .leftJoinAndSelect(User, 'u', 'user_id = u.id')
-      .where('(name like :search or bank_num like :search)')
-      .andWhere('status like :status and reason like :reason')
-      .where(data.create_time ? 'create_time between :create_time1 and :create_time2' : '', { create_time1: data.create_time ? data.create_time[0] : '', create_time2: data.create_time ? data.create_time[1] : '' })
+      .leftJoinAndSelect(User, 'u', 'bank.user_id = u.id')
+      .where('(u.username like :search or bank.name like :search or bank.bank_num like :search)')
+      .andWhere('bank.status like :status and bank.reason like :reason');
+
+    if (data.create_time) {
+      sql.andWhere('bank.create_time between :create_time1 and :create_time2', { create_time1: data.create_time[0], create_time2: data.create_time[1] });
+    }
+
+    let res: any = await sql
       .offset((data.page - 1) * data.pageNum)
       .limit(data.pageNum)
       .setParameters(searchData)
       .getRawMany();
+    // .getSql();
+    // return res
 
     // 使用getRawMany()方法时，删除所有原始数据
     removeRawMany(res, 'u_');
