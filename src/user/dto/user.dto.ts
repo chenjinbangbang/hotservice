@@ -1,9 +1,9 @@
 import { IsString, IsInt, IsBoolean, Length, IsDate, IsDateString, IsNumber, IsEmail, Min, Matches, IsMobilePhone } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { pageDto } from 'src/common/dto';
+import { PageDto } from 'src/common/dto';
 
 // 获取用户列表实体
-export class UserSearchDto extends pageDto {
+export class UserSearchDto extends PageDto {
   // 模糊搜索：编号(id)，用户名(username)，师傅(referrer_username)，E-mail(email)，QQ(qq)，手机号(mobile)，冻结原因(freeze_reason)，真实姓名(name)，身份证号码(idcardno)
   @ApiProperty({
     // required: false,

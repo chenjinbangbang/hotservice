@@ -1,19 +1,23 @@
-import { Controller, Get, Query, Post, Body, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Query, Post, Body, Put, Delete, Request, UseGuards } from '@nestjs/common';
 import { BankService } from './bank.service';
-import { ApiOperation, ApiTags, ApiQuery } from '@nestjs/swagger';
+import { ApiOperation, ApiTags, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 
-import { createBankDto, alterBankDto, statusDto } from './dto/bank.dto';
+import { CreateBankDto, AlterBankDto, StatusDto, SearchBankDto } from './dto/bank.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('银行卡相关')
+@UseGuards(AuthGuard('jwt'))
+@ApiBearerAuth()
 @Controller('bank')
 export class BankController {
   constructor(private readonly bankService: BankService) { }
 
-  // 获取银行卡列表（后台管理）
-  @Get('list')
-  @ApiOperation({ summary: '获取银行卡列表（后台管理）' })
-  getList() {
-    return this.bankService.getList();
+  // 获取当前用户的银行卡列表
+  @Get('list/byId')
+  @ApiOperation({ summary: '获取当前用户的银行卡列表' })
+  getListById(@Request() req) {
+    console.log(req.user);
+    return this.bankService.getListById(req.user);
   }
 
   // 获取某个银行卡的信息
@@ -21,20 +25,21 @@ export class BankController {
   @ApiOperation({ summary: '获取某个银行卡的信息' })
   @ApiQuery({ name: 'id', description: '银行卡编号', type: 'number' })
   getDetail(@Query() query) {
-    return this.bankService.getDetail(query.id);
+    return this.bankService.getDetail(query);
   }
 
   // 添加银行卡
   @Post('create')
   @ApiOperation({ summary: '添加银行卡' })
-  create(@Body() body: createBankDto) {
-    return this.bankService.create(body);
+  create(@Request() req, @Body() body: CreateBankDto) {
+    // console.log(req.user);
+    return this.bankService.create(req.user, body);
   }
 
   // 修改银行卡
   @Put('alter')
   @ApiOperation({ summary: '修改银行卡' })
-  alter(@Body() body: alterBankDto) {
+  alter(@Body() body: AlterBankDto) {
     return this.bankService.alter(body);
   }
 
@@ -46,10 +51,17 @@ export class BankController {
     return this.bankService.delete(query);
   }
 
-  // 审核是否通过（后台管理）
+  // 获取银行卡列表（后台管理）
+  @Post('list')
+  @ApiOperation({ summary: '获取银行卡列表（后台管理）' })
+  getList(@Body() body: SearchBankDto) {
+    return this.bankService.getList(body);
+  }
+
+  // 银行卡审核状态是否通过（后台管理）
   @Put('status')
-  @ApiOperation({ summary: '审核是否通过（后台管理）' })
-  checkStatus(@Body() body: statusDto) {
+  @ApiOperation({ summary: '银行卡审核状态是否通过（后台管理）' })
+  checkStatus(@Body() body: StatusDto) {
     return this.bankService.checkStatus(body);
   }
 

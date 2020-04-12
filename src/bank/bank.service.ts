@@ -2,12 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Bank } from 'src/entity/bank.entity';
+import { User } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
-import { resFormat } from 'src/common/global';
+import { resFormat, removeRawMany } from 'src/common/global';
+import { BasicService } from 'src/basic/basic.service';
 
 @Injectable()
 export class BankService {
-  constructor(@InjectRepository(Bank) private readonly bankRepo: Repository<Bank>) { }
+  constructor(
+    @InjectRepository(Bank) private readonly bankRepo: Repository<Bank>,
+    private readonly basicService: BasicService
+  ) { }
 
   // 查询某个银行卡是否存在
   // async findOne(id) {
@@ -20,33 +25,64 @@ export class BankService {
   //   }
   // }
 
-  // 获取银行卡列表
-  async getList() {
-    let res = await this.bankRepo.find();
+  // 获取当前用户的银行卡列表
+  async getListById(user) {
+    let res: any[] = await this.bankRepo.find({ user_id: user.id });
 
-    let count = await this.bankRepo.count();
+    // 处理响应数据
+    let promises: any[] = [];
+    res.forEach(item => {
+      let p = new Promise(async resolve => {
+        // 银行卡号4-14位做脱敏处理
+        item.bank_num = item.bank_num.replace(item.bank_num.substring(4, 16), '******');
+        
+        // 获取省市区字符串
+        let region = await this.basicService.getAreaRegion({ provinceId: item.bank_province, cityId: item.bank_city, districtId: item.bank_area });
 
-    return resFormat(true, { lists: res, total: count }, null);
+        // delete item.bank_province;
+        // delete item.bank_city;
+        // delete item.bank_area;
+        item.region = region.data;
+
+        resolve(item);
+      })
+
+      promises.push(p);
+    })
+    // console.log(promises);
+
+    let newRes = await Promise.all(promises);
+
+    let count = await this.bankRepo.count({ user_id: user.id });
+
+    return resFormat(true, { lists: newRes, total: count }, null);
   }
 
+
   // 获取某个银行卡的信息
-  async getDetail(id) {
-    let res = await this.bankRepo.findOne(id);
+  async getDetail(data) {
+    let res: any = await this.bankRepo.findOne({ id: data.id });
+
+    // 获取省市区字符串
+    const region = await this.basicService.getAreaRegion({ provinceId: res.bank_province, cityId: res.bank_city, districtId: res.bank_area });
+    res.region = region.data;
 
     if (res) {
       return resFormat(true, res, null);
     } else {
-      return resFormat(true, '查不到该银行卡', null);
+      return resFormat(false, '查不到该银行卡', null);
     }
   }
 
   // 添加银行卡
-  async create(data) {
-
-    let count = await this.bankRepo.count();
+  async create(user, data) {
+    let count = await this.bankRepo.count({ user_id: user.id });
+    console.log('当前用户的银行卡数量：', count)
     if (count >= 3) {
       return resFormat(false, null, '最多只能添加3张银行卡');
     }
+
+    data.user_id = user.id; // 添加user_id
 
     let bank = await this.bankRepo.create(data);
     let res = await this.bankRepo.save(bank);
@@ -88,9 +124,89 @@ export class BankService {
     }
   }
 
-  // 审核是否通过（后台管理）
-  async checkStatus(data) {
+  // 获取银行卡列表（后台管理）
+  async getList(data) {
+    console.log(data);
 
+    let searchData: any = {};
+    for (let key in data) {
+      if (!['page', 'pageNum', 'create_time'].includes(key)) {
+        searchData[key] = `%${data[key]}%`;
+      }
+    }
+    console.log(searchData)
+
+    // let res: any = await this.bankRepo.find();
+    let res: any[] = await this.bankRepo.createQueryBuilder('bank')
+      .select(['bank.*', 'u.username username'])
+      .leftJoinAndSelect(User, 'u', 'user_id = u.id')
+      .where('(name like :search or bank_num like :search)')
+      .andWhere('status like :status and reason like :reason')
+      .where(data.create_time ? 'create_time between :create_time1 and :create_time2' : '', { create_time1: data.create_time ? data.create_time[0] : '', create_time2: data.create_time ? data.create_time[1] : '' })
+      .offset((data.page - 1) * data.pageNum)
+      .limit(data.pageNum)
+      .setParameters(searchData)
+      .getRawMany();
+
+    // 使用getRawMany()方法时，删除所有原始数据
+    removeRawMany(res, 'u_');
+
+    // 处理响应数据
+    let promises: any[] = [];
+    res.forEach(item => {
+      let p = new Promise(async resolve => {
+
+        // 获取省市区字符串
+        let region = await this.basicService.getAreaRegion({ provinceId: item.bank_province, cityId: item.bank_city, districtId: item.bank_area });
+
+        // delete item.bank_province;
+        // delete item.bank_city;
+        // delete item.bank_area;
+        item.region = region.data;
+
+        resolve(item);
+      })
+
+      promises.push(p);
+    })
+    // console.log(promises);
+
+    let newRes = await Promise.all(promises);
+
+    let count = await this.bankRepo.count();
+
+    return resFormat(true, { lists: newRes, total: count }, null);
+  }
+
+
+  // 银行卡审核状态是否通过（后台管理）
+  async checkStatus(data) {
+    const { id, status, reason } = data
+    let isExist = await this.bankRepo.findOne(id);
+    if (!isExist) {
+      return resFormat(true, '查不到该银行卡', null);
+    }
+
+    if (![1, 2].includes(status)) {
+      return resFormat(true, '银行卡状态参数异常', null);
+    }
+
+    // 若审核状态为1，则审核不通过原因必传
+    if (status === 1 && !reason) {
+      return resFormat(true, '审核状态为1时，审核不通过原因必传', null);
+    }
+
+    let res = await this.bankRepo.update(id, data);
+
+    if (res.raw.affectedRows > 0) {
+      if (status === 2) {
+        return resFormat(true, null, '银行卡审核已通过');
+      } else if (status === 1) {
+        return resFormat(true, null, '银行卡审核未通过');
+      }
+    } else {
+      return resFormat(false, null, '修改银行卡审核状态失败');
+    }
   }
 
 }

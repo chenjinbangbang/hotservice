@@ -30,7 +30,7 @@ export class BasicController {
   constructor(private readonly basicService: BasicService) { }
 
   // 获取字典表
-  @Get('basic/dict')
+  @Get('dict')
   @ApiOperation({ summary: '获取字典表' })
   @ApiQuery({ name: 'dict_code', description: '字典码' })
   getDict(@Query() query) {
@@ -38,21 +38,21 @@ export class BasicController {
   }
 
   // 获取所有字典表
-  @Get('basic/dictAll')
+  @Get('dictAll')
   @ApiOperation({ summary: '获取所有字典表' })
   getDictAll() {
     return this.basicService.getDictAll();
   }
 
   // 获取省市区
-  @Get('basic/area')
+  @Get('area')
   @ApiOperation({ summary: '获取省市区' })
   getArea() {
     return this.basicService.getArea()
   }
 
   // 获取省市区字符串
-  @Get('basic/area/region')
+  @Get('area/region')
   @ApiOperation({ summary: '获取省市区字符串' })
   @ApiQuery({ name: 'provinceId', required: false, description: '省份id' })
   @ApiQuery({ name: 'cityId', required: false, description: '城市id' })

@@ -1,6 +1,8 @@
-import { PrimaryGeneratedColumn, Column, Entity, BaseEntity, Double, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { PrimaryGeneratedColumn, Column, Entity, BaseEntity, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Pay } from './pay.entity';
 import { Bank } from './bank.entity';
+import { Platform } from './platform.entity';
+
 
 // @Entity('my_users') // 自定义表名
 @Entity()
@@ -16,6 +18,10 @@ export class User extends BaseEntity {
   // 一个用户有多张银行卡
   // @OneToMany(type => Bank, bank => bank.user)
   // banks: Bank[];
+  
+  // 一个用户有多个平台账号
+  // @OneToMany(type => Platform, platform => platform.user)
+  // platforms: Platform[];
 
   @Column({ type: 'bigint', comment: '师傅编号', nullable: true })
   referrer_user_id: number;
@@ -26,13 +32,13 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', comment: '密码', select: false })
   password: string;
 
-  @Column({ type: 'varchar', comment: 'E-mail' })
+  @Column({ type: 'varchar', comment: 'E-mail', unique: true })
   email: string;
 
-  @Column({ type: 'varchar', comment: '联系QQ' })
+  @Column({ type: 'varchar', comment: '联系QQ', unique: true })
   qq: string;
 
-  @Column({ type: 'varchar', comment: '手机号', length: 11 }) // length长度没生效
+  @Column({ type: 'varchar', comment: '手机号', unique: true, length: 11 }) // length长度没生效
   mobile: string;
 
   @Column({ type: 'varchar', comment: '安全密码' })

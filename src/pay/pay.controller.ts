@@ -2,8 +2,7 @@ import { Controller, Get, Query, ParseIntPipe, Post, Body, Head, Put } from '@ne
 import { ApiTags, ApiQuery, ApiBody, ApiHeader, ApiProperty, ApiResponse, ApiOperation } from '@nestjs/swagger';
 import { PayService } from './pay.service';
 import { PayCreateDto, PayStatusDto, PayDto } from './dto/pay.dto';
-import { pageDto } from 'src/common/dto';
-import { IsInt } from 'class-validator';
+import { PageDto } from 'src/common/dto';
 
 @ApiTags('充值相关')
 @Controller('pay')
@@ -13,10 +12,10 @@ export class PayController {
   // 获取充值记录
   @Get('list')
   @ApiOperation({ summary: '获取充值记录' })
-  @ApiQuery({ name: 'pageNum', description: '一页的条数', type: 'number' })
-  @ApiQuery({ name: 'page', description: '当前页', type: 'number' })
+  // @ApiQuery({ name: 'pageNum', description: '一页的条数', type: 'number' })
+  // @ApiQuery({ name: 'page', description: '当前页', type: 'number' })
   @ApiResponse({ type: [PayDto] })
-  getList(@Query() query: pageDto) {
+  getList(@Query() query: PageDto) {
     console.log(query);
     return this.payService.getList(query);
   }

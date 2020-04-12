@@ -3,7 +3,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsInt, IsString, IsMobilePhone, IsEmail, Matches } from "class-validator";
 
 // 登录实体
-export class loginDto {
+export class LoginDto {
   @ApiProperty({
     description: '用户名'
   })
@@ -20,9 +20,10 @@ export class loginDto {
 }
 
 // 注册实体
-export class registerDto {
+export class RegisterDto {
   @ApiProperty({
     description: '师傅编号',
+    required: false,
     nullable: true
   })
   readonly referrer_user_id: number;

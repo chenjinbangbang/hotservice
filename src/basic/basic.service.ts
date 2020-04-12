@@ -99,6 +99,6 @@ export class BasicService {
       arr.push(district);
     }
 
-    return resFormat(true, arr.join('-'), null);
+    return resFormat(true, arr.join(' '), null);
   }
 }

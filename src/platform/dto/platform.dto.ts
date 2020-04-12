@@ -1,9 +1,9 @@
-import { IsString, IsInt, IsDate, IsNumber, IsEmail, Min, Matches, IsMobilePhone } from 'class-validator';
+import { IsString, IsInt, IsDate, IsNumber, IsEmail, Min, Matches, IsMobilePhone, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { PageDto } from 'src/common/dto';
 
 // 获取银行卡列表实体
-export class SearchBankDto extends PageDto {
+export class SearchPlatformDto extends PageDto {
   // 模糊搜索：编号(id)，用户名(username)，姓名(name)，银行卡号(bank_num)
   @ApiProperty({
     // required: false,
@@ -33,48 +33,34 @@ export class SearchBankDto extends PageDto {
 }
 
 // 添加银行卡实体
-export class CreateBankDto {
+export class CreatePlatformDto {
   @ApiProperty({
-    description: '开户行编号'
+    description: '平台账号类型',
+    default: 0
   })
-  readonly bank_deposit_id: string;
+  readonly platform_type: number;
 
   @ApiProperty({
-    description: '开户省'
+    description: '平台账号名称'
   })
-  readonly bank_province: string;
+  @MaxLength(50, { message: '平台账号名称不能超过50个字符' })
+  readonly platform_name: string;
 
   @ApiProperty({
-    description: '开户市'
+    description: '平台账号头像'
   })
-  readonly bank_city: string;
+  readonly platform_head_thumb: string;
 
   @ApiProperty({
-    description: '开户区'
+    description: '平台账号截图'
   })
-  readonly bank_area: string;
-
-  @ApiProperty({
-    description: '开户支行名称'
-  })
-  readonly bank_branch: string;
-
-  @ApiProperty({
-    description: '银行卡号'
-  })
-  readonly bank_num: string;
-
-  @ApiProperty({
-    description: '开户人姓名'
-  })
-  @Matches(/^([\u4E00-\u9FA5]+|[a-zA-Z]+)$/, { message: '请输入有效的姓名' })
-  readonly name: string;
+  readonly platform_image_src: string;
 }
 
 // 修改银行卡实体
-export class AlterBankDto extends CreateBankDto {
+export class AlterPlatformDto extends CreatePlatformDto {
   @ApiProperty({
-    description: '银行卡编号'
+    description: '平台账号编号'
   })
   readonly id: number;
 }
@@ -82,7 +68,7 @@ export class AlterBankDto extends CreateBankDto {
 // 审核状态是否通过实体
 export class StatusDto {
   @ApiProperty({
-    description: '银行卡编号'
+    description: '平台账号编号'
   })
   readonly id: number;
 

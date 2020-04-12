@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsInt, Min } from "class-validator";
 
 // 分页实体
-export class pageDto {
+export class PageDto {
   @ApiProperty({
     type: 'number',
     description: '当前页',

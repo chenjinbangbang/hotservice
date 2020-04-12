@@ -1,7 +1,7 @@
 import { Controller, Get, UseGuards, Post, Request, Headers, Head, Header, Query, Body } from '@nestjs/common';
 import { ApiTags, ApiProperty, ApiBody, ApiHeader, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { AuthService } from './auth.service'
-import { loginDto, registerDto } from './dto/auth.dto';
+import { LoginDto, RegisterDto } from './dto/auth.dto';
 
 // jwt
 import { AuthGuard } from '@nestjs/passport';
@@ -19,7 +19,7 @@ export class AuthController {
   @Post('login')
   @ApiOperation({ summary: '用户登录' })
   @UseGuards(AuthGuard('local'))
-  @ApiBody({ type: loginDto })
+  @ApiBody({ type: LoginDto })
   login(@Request() req) {
     console.log(req.user);
     return this.authService.login(req.user);
@@ -28,7 +28,7 @@ export class AuthController {
   // 用户注册
   @Post('register')
   @ApiOperation({ summary: '用户注册' })
-  register(@Body() body: registerDto) {
+  register(@Body() body: RegisterDto) {
     // console.log(body);
     return this.authService.register(body);
   }

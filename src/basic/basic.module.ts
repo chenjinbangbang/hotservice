@@ -12,6 +12,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     TypeOrmModule.forFeature([Dict])
   ],
   controllers: [BasicController],
-  providers: [BasicService]
+  providers: [BasicService],
+  exports: [BasicService]
 })
 export class BasicModule { }

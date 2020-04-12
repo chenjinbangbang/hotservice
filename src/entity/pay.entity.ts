@@ -1,7 +1,6 @@
 import { Entity, BaseEntity, PrimaryGeneratedColumn, ManyToOne, Column } from "typeorm";
 import { User } from "./user.entity";
 
-
 @Entity()
 export class Pay extends BaseEntity {
   @PrimaryGeneratedColumn({ type: 'bigint', comment: '充值编号' })
