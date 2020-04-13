@@ -140,28 +140,66 @@ export class PlatformService {
     const { id, status, reason } = data
     let isExist = await this.platformRepo.findOne(id);
     if (!isExist) {
-      return resFormat(true, '查不到该平台账号', null);
+      return resFormat(false, '查不到该平台账号', null);
     }
 
     if (![1, 2].includes(status)) {
-      return resFormat(true, '平台账号状态参数异常', null);
+      return resFormat(false, '平台账号状态参数异常', null);
     }
 
-    // 若审核状态为1，则审核不通过原因必传
-    if (status === 1 && !reason) {
-      return resFormat(true, '审核状态为1时，审核不通过原因必传', null);
+    // 若状态为1时，则平台账号审核不通过原因必传
+    if (status === 1) {
+      if (![0, 1, 2].includes(reason)) {
+        return resFormat(false, '平台账号审核不通过原因参数异常', null);
+      }
+    } else if (status === 2) {
+      delete data.reason
     }
 
     let res = await this.platformRepo.update(id, data);
 
     if (res.raw.affectedRows > 0) {
       if (status === 2) {
-        return resFormat(true, null, '平台账号审核已通过');
+        return resFormat(true, null, '该平台账号审核已通过');
       } else if (status === 1) {
-        return resFormat(true, null, '平台账号审核未通过');
+        return resFormat(true, null, '该平台账号审核未通过');
       }
     } else {
       return resFormat(false, null, '修改平台账号审核状态失败');
+    }
+  }
+
+  // 冻结/解冻平台账号（后台管理）
+  async freezeStatus(data) {
+    const { id, status, freeze_reason } = data
+    let isExist = await this.platformRepo.findOne(id);
+    if (!isExist) {
+      return resFormat(false, '查不到该平台账号', null);
+    }
+
+    if (![2, 3].includes(status)) {
+      return resFormat(false, '平台账号状态参数异常', null);
+    }
+
+    // 若状态为3时，则平台账号审核不通过原因必传
+    if (status === 3) {
+      if (![0].includes(freeze_reason)) {
+        return resFormat(false, '冻结原因参数异常', null);
+      }
+    } else if (status === 2) {
+      delete data.freeze_reason
+    }
+
+    let res = await this.platformRepo.update(id, data);
+
+    if (res.raw.affectedRows > 0) {
+      if (status === 2) {
+        return resFormat(true, null, '该平台账号已解冻');
+      } else if (status === 3) {
+        return resFormat(true, null, '该平台账号已冻结');
+      }
+    } else {
+      return resFormat(false, null, '修改平台账号状态失败');
     }
   }
 

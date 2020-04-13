@@ -190,25 +190,29 @@ export class BankService {
     const { id, status, reason } = data
     let isExist = await this.bankRepo.findOne(id);
     if (!isExist) {
-      return resFormat(true, '查不到该银行卡', null);
+      return resFormat(false, '查不到该银行卡', null);
     }
 
     if (![1, 2].includes(status)) {
-      return resFormat(true, '银行卡状态参数异常', null);
+      return resFormat(false, '银行卡状态参数异常', null);
     }
 
     // 若审核状态为1，则审核不通过原因必传
-    if (status === 1 && !reason) {
-      return resFormat(true, '审核状态为1时，审核不通过原因必传', null);
+    if (status === 1) {
+      if (![0, 1, 2].includes(reason)) {
+        return resFormat(false, '审核不通过原因参数异常', null);
+      }
+    } else if (status === 2) {
+      delete data.reason
     }
 
     let res = await this.bankRepo.update(id, data);
 
     if (res.raw.affectedRows > 0) {
       if (status === 2) {
-        return resFormat(true, null, '银行卡审核已通过');
+        return resFormat(true, null, '该银行卡审核已通过');
       } else if (status === 1) {
-        return resFormat(true, null, '银行卡审核未通过');
+        return resFormat(true, null, '该银行卡审核未通过');
       }
     } else {
       return resFormat(false, null, '修改银行卡审核状态失败');

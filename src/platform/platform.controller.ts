@@ -2,7 +2,7 @@ import { Controller, Get, Query, Post, Body, Put, Delete, Request, UseGuards } f
 import { PlatformService } from './platform.service';
 import { ApiOperation, ApiTags, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 
-import { CreatePlatformDto, AlterPlatformDto, StatusDto, SearchPlatformDto } from './dto/platform.dto';
+import { CreatePlatformDto, AlterPlatformDto, StatusDto, SearchPlatformDto, StatusFreezeDto } from './dto/platform.dto';
 import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('平台账号相关')
@@ -59,10 +59,17 @@ export class PlatformController {
   }
 
   // 审核平台账号（后台管理）
-  @Put('status')
+  @Put('status/check')
   @ApiOperation({ summary: '审核平台账号（后台管理）' })
   checkStatus(@Body() body: StatusDto) {
     return this.platformService.checkStatus(body);
+  }
+
+  // 冻结/解冻平台账号（后台管理）
+  @Put('status/freeze')
+  @ApiOperation({ summary: '冻结/解冻平台账号（后台管理）' })
+  freezeStatus(@Body() body: StatusFreezeDto) {
+    return this.platformService.freezeStatus(body);
   }
 
 }

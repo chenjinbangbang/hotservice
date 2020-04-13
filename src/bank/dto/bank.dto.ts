@@ -92,7 +92,7 @@ export class StatusDto {
   readonly status: number;
 
   @ApiProperty({
-    description: '审核不通过原因（审核状态为1时必传）',
+    description: '审核不通过原因（0：开户行与银行卡信息不对应，1：开户姓名与银行卡信息不对应，2：银行卡号填写有误当）（审核状态为1时必传）',
     required: false
   })
   readonly reason: string;

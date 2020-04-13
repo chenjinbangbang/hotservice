@@ -75,7 +75,7 @@ export class AlterPlatformDto extends CreatePlatformDto {
   readonly id: number;
 }
 
-// 审核状态是否通过实体
+// 平台账号审核状态是否通过实体
 export class StatusDto {
   @ApiProperty({
     description: '平台账号编号'
@@ -88,8 +88,27 @@ export class StatusDto {
   readonly status: number;
 
   @ApiProperty({
-    description: '审核不通过原因（审核状态为1时必传）',
+    description: '审核不通过原因（状态为1时必传）',
     required: false
   })
-  readonly reason: string;
+  readonly reason: number;
+}
+
+// 平台账号冻结/解冻状态实体
+export class StatusFreezeDto {
+  @ApiProperty({
+    description: '平台账号编号'
+  })
+  readonly id: number;
+
+  @ApiProperty({
+    description: '审核状态（2：正常（审核已通过），3：冻结）'
+  })
+  readonly status: number;
+
+  @ApiProperty({
+    description: '冻结原因（0：违规账号）（状态为3时必传）',
+    required: false
+  })
+  readonly freeze_reason: number;
 }

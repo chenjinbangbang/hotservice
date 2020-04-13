@@ -38,7 +38,7 @@ export class Bank extends BaseEntity {
   @Column({ type: 'tinyint', comment: '状态（0 待审核/审核中，1 未通过（审核未通过），2 正常（审核已通过））', default: 0 })
   status: number;
 
-  @Column({ type: 'tinyint', comment: '审核不通过原因（当status为1时显示）' })
+  @Column({ type: 'tinyint', comment: '审核不通过原因（0：开户行与银行卡信息不对应，1：开户姓名与银行卡信息不对应，2：银行卡号填写有误当）（status为1时显示）' })
   reason: number;
 
   @CreateDateColumn()
