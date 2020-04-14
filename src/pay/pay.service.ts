@@ -4,30 +4,42 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Pay } from 'src/entity/pay.entity';
 import { Repository } from 'typeorm';
 import { resFormat } from 'src/common/global';
+import { UserService } from 'src/user/user.service';
 // import { User } from 'src/entity/user.entity';
 
 @Injectable()
 export class PayService {
-  constructor(@InjectRepository(Pay) private readonly payRepo: Repository<Pay>) { }
+  constructor(
+    @InjectRepository(Pay) private readonly payRepo: Repository<Pay>,
+    private readonly userService: UserService
+  ) { }
 
   // 获取充值记录
-  async getList(data) {
+  async getList(user, data) {
     let { page, pageNum } = data;
 
     let res = await this.payRepo.createQueryBuilder('pay')
-      .leftJoinAndSelect('pay.user', 'user')
+      // .leftJoinAndSelect('pay.user', 'user')
+      .where('user_id = :id', { id: user.id })
       .skip((page - 1) * pageNum)
       .take(pageNum)
       .getMany();
 
     // 查询总数
-    let count = await this.payRepo.count();
+    let count = await this.payRepo.count({ user_id: user.id });
 
     return resFormat(true, { lists: res, total: count }, null);
   }
 
   // 用户充值
-  async reCharge(data) {
+  async reCharge(user, data) {
+    let isPay = await this.userService.reCharge(user, data.wealth);
+    if (!isPay) {
+      return resFormat(false, null, '充值失败');
+    }
+
+    data.user_id = user.id; // 添加user_id
+
     let pay = this.payRepo.create(data);
     let res = await this.payRepo.save(pay);
     console.log(res);
@@ -35,11 +47,11 @@ export class PayService {
     return resFormat(true, null, '充值成功');
   }
 
-  // 充值审核
+  // 更改充值状态（后台管理）
   async payStatus(data) {
 
-    // 只能输入0,1,2
-    if (![0, 1, 2].includes(data.status)) {
+    // 只能输入1,2
+    if (![1, 2].includes(data.status)) {
       return resFormat(false, null, '充值状态参数异常');
     }
 

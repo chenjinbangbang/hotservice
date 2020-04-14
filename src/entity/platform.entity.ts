@@ -35,6 +35,6 @@ export class Platform extends BaseEntity {
   @Column({ type: 'tinyint', comment: '冻结原因（0：违规账号[同一用户同一平台账号名称是否冻结]）（审核/冻结状态为3时使用）' })
   freeze_reason: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ comment: '创建时间' })
   create_time: Date;
 }

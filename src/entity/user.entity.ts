@@ -12,13 +12,13 @@ export class User extends BaseEntity {
   id: number;
 
   // 一个用户有多个充值记录
-  @OneToMany(type => Pay, pay => pay.user)
-  pays: Pay[];
+  // @OneToMany(type => Pay, pay => pay.user)
+  // pays: Pay[];
 
   // 一个用户有多张银行卡
   // @OneToMany(type => Bank, bank => bank.user)
   // banks: Bank[];
-  
+
   // 一个用户有多个平台账号
   // @OneToMany(type => Platform, platform => platform.user)
   // platforms: Platform[];

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsInt, IsString, IsNumber, IsDate } from "class-validator";
+import { IsInt, IsString, IsNumber, IsDate, Min } from "class-validator";
 
 // 一个类不能同时继承多个类，可以A继承B，C再继承A
 
@@ -58,6 +58,7 @@ export class PayCreateDto {
     description: '充值金额'
   })
   @IsNumber()
+  @Min(0, { message: '充值金额不能少于0' })
   readonly wealth: number;
 
 }

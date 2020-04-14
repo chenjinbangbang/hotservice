@@ -177,7 +177,7 @@ export class UserService {
   }
 
   // 购买金币
-  async goldBuy(id, data) {
+  async goldBuy(user, data) {
     // let res = await this.userRepo.update(id, data);
     // let res = await this.userRepo.createQueryBuilder('user')
     //   .update(User)
@@ -185,7 +185,7 @@ export class UserService {
     //   .where('id = :id', { id })
     //   .execute()
 
-    let res = await this.userRepo.query(`update user set gold = concat(gold + ${data.gold}) where id = ${id}`);
+    let res = await this.userRepo.query(`update user set gold = concat(gold + ${data.gold}) where id = ${user.id}`);
     console.log(res);
 
     // return res;
@@ -193,6 +193,16 @@ export class UserService {
       return resFormat(true, null, '购买金币成功');
     } else {
       return resFormat(false, null, '购买金币失败');
+    }
+  }
+
+  // 用户充值（payService调用）
+  async reCharge(user, wealth) {
+    let res = await this.userRepo.query(`update user set wealth = concat(wealth + ${wealth}) where id = ${user.id}`);
+    if (res.affectedRows > 0) {
+      return true;
+    } else {
+      return false;
     }
   }
 

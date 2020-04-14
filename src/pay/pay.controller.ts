@@ -1,10 +1,13 @@
-import { Controller, Get, Query, ParseIntPipe, Post, Body, Head, Put } from '@nestjs/common';
-import { ApiTags, ApiQuery, ApiBody, ApiHeader, ApiProperty, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { Controller, Get, Query, ParseIntPipe, Post, Body, Head, Put, UseGuards, Request } from '@nestjs/common';
+import { ApiTags, ApiQuery, ApiBody, ApiHeader, ApiProperty, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { PayService } from './pay.service';
 import { PayCreateDto, PayStatusDto, PayDto } from './dto/pay.dto';
 import { PageDto } from 'src/common/dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('充值相关')
+@UseGuards(AuthGuard('jwt'))
+@ApiBearerAuth()
 @Controller('pay')
 export class PayController {
   constructor(private readonly payService: PayService) { }
@@ -12,26 +15,23 @@ export class PayController {
   // 获取充值记录
   @Get('list')
   @ApiOperation({ summary: '获取充值记录' })
-  // @ApiQuery({ name: 'pageNum', description: '一页的条数', type: 'number' })
-  // @ApiQuery({ name: 'page', description: '当前页', type: 'number' })
-  @ApiResponse({ type: [PayDto] })
-  getList(@Query() query: PageDto) {
+  getList(@Request() req, @Query() query: PageDto) {
     console.log(query);
-    return this.payService.getList(query);
+    return this.payService.getList(req.user, query);
   }
 
   // 用户充值（需要添加一条日志）
   @Post('wealth')
   @ApiOperation({ summary: '用户充值' })
   @ApiBody({ type: PayCreateDto })
-  reCharge(@Body() body) {
+  reCharge(@Request() req, @Body() body) {
     console.log(body)
-    return this.payService.reCharge(body);
+    return this.payService.reCharge(req.user, body);
   }
 
-  // 充值审核（后台管理）（需要添加一条日志）
+  // 更改充值状态（后台管理）（需要添加一条日志）
   @Put('status')
-  @ApiOperation({ summary: '充值审核（后台管理）' })
+  @ApiOperation({ summary: '更改充值状态（后台管理）' })
   @ApiBody({ type: PayStatusDto })
   payStatus(@Body() body: PayStatusDto) {
     console.log(body);

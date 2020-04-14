@@ -41,6 +41,6 @@ export class Bank extends BaseEntity {
   @Column({ type: 'tinyint', comment: '审核不通过原因（0：开户行与银行卡信息不对应，1：开户姓名与银行卡信息不对应，2：银行卡号填写有误当）（status为1时显示）' })
   reason: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ comment: '创建时间' })
   create_time: Date;
 }

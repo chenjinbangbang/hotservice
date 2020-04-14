@@ -98,7 +98,7 @@ export class UserController {
   @ApiBearerAuth()
   goldBuy(@Request() req, @Body() body: goldBuyDto) {
     console.log(req.user);
-    return this.userService.goldBuy(req.user.id, body);
+    return this.userService.goldBuy(req.user, body);
   }
 
 }
