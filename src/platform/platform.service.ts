@@ -116,7 +116,7 @@ export class PlatformService {
       .where('(u.username like :search or platform.platform_name like :search)')
       .andWhere('platform.platform_type like :platform_type and platform.status like :status and platform.reason like :reason and platform.freeze_reason like :freeze_reason');
 
-    if (data.create_time) {
+    if (data.create_time && data.create_time.length === 2) {
       sql.andWhere('platform.create_time between :create_time1 and :create_time2', { create_time1: data.create_time[0], create_time2: data.create_time[1] });
     }
 
@@ -129,7 +129,7 @@ export class PlatformService {
     // 使用getRawMany()方法时，删除所有原始数据
     removeRawMany(res, 'u_');
 
-    let count = await this.platformRepo.count();
+    let count: number = await sql.getCount();
 
     return resFormat(true, { lists: res, total: count }, null);
   }

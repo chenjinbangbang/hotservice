@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Bank } from 'src/entity/bank.entity';
 import { User } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
-import { resFormat, removeRawMany } from 'src/common/global';
+import { resFormat, removeRawMany, searchParams } from 'src/common/global';
 import { BasicService } from 'src/basic/basic.service';
 
 @Injectable()
@@ -27,7 +27,9 @@ export class BankService {
 
   // 获取当前用户的银行卡列表
   async getListById(user) {
-    let res: any[] = await this.bankRepo.find({ user_id: user.id });
+    const { id } = user;
+
+    let res: any[] = await this.bankRepo.find({ user_id: id });
 
     // 处理响应数据
     let promises: any[] = [];
@@ -53,7 +55,7 @@ export class BankService {
 
     let newRes = await Promise.all(promises);
 
-    let count = await this.bankRepo.count({ user_id: user.id });
+    let count = await this.bankRepo.count({ user_id: id });
 
     return resFormat(true, { lists: newRes, total: count }, null);
   }
@@ -127,14 +129,7 @@ export class BankService {
   // 获取银行卡列表（后台管理）
   async getList(data) {
     console.log(data);
-
-    let searchData: any = {};
-    for (let key in data) {
-      if (!['page', 'pageNum', 'create_time'].includes(key)) {
-        searchData[key] = `%${data[key]}%`;
-      }
-    }
-    console.log(searchData)
+    let searchData: object = searchParams(data, ['search', 'status', 'reason'], ['page', 'pageNum', 'create_time']);
 
     let sql = this.bankRepo.createQueryBuilder('bank')
       .select(['bank.*', 'u.username username'])
@@ -142,7 +137,7 @@ export class BankService {
       .where('(u.username like :search or bank.name like :search or bank.bank_num like :search)')
       .andWhere('bank.status like :status and bank.reason like :reason');
 
-    if (data.create_time) {
+    if (data.create_time && data.create_time.length === 2) {
       sql.andWhere('bank.create_time between :create_time1 and :create_time2', { create_time1: data.create_time[0], create_time2: data.create_time[1] });
     }
 
@@ -151,8 +146,6 @@ export class BankService {
       .limit(data.pageNum)
       .setParameters(searchData)
       .getRawMany();
-    // .getSql();
-    // return res
 
     // 使用getRawMany()方法时，删除所有原始数据
     removeRawMany(res, 'u_');
@@ -179,7 +172,7 @@ export class BankService {
 
     let newRes = await Promise.all(promises);
 
-    let count = await this.bankRepo.count();
+    let count: number = await sql.getCount();
 
     return resFormat(true, { lists: newRes, total: count }, null);
   }

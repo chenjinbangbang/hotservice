@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsBoolean, Length, IsDate, IsDateString, IsNumber, IsEmail, Min, Matches, IsMobilePhone } from 'class-validator';
+import { IsString, IsInt, IsBoolean, Length, IsDate, IsDateString, IsNumber, IsEmail, Min, Matches, IsMobilePhone, IsDivisibleBy } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { PageDto } from 'src/common/dto';
 
@@ -125,7 +125,7 @@ export class MobileDto {
   readonly mobile: string;
 }
 
-// 验证金币实体
+// 购买金币实体
 export class goldBuyDto {
   @ApiProperty({
     description: '金币'
@@ -133,6 +133,50 @@ export class goldBuyDto {
   @IsNumber()
   @Min(0)
   readonly gold: number;
+}
+
+// 金币兑现实体
+export class goldCashDto {
+  @ApiProperty({
+    description: '金币（必须大于10，并且是10的倍数）',
+    default: 10
+  })
+  @IsInt()
+  @Min(10, { message: '金币数10个起兑换' }) // 大于10
+  @IsDivisibleBy(10, { message: '金币数必须是10的倍数' }) // 10的倍数
+  readonly gold: number;
+
+  @ApiProperty({
+    description: '安全密码'
+  })
+  @IsString()
+  @Matches(/^\w{8,18}$/, { message: '安全密码由8-18个字符，字母/数字/下划线组成' }) // 8-18个字符，字母/数字/下划线组成
+  readonly password_security: string;
+}
+
+// 现金提现实体
+export class WealthDepositDto {
+  @ApiProperty({
+    description: '提现金额（必须大于10，并且是10的倍数）',
+    default: 10
+  })
+  @IsInt()
+  @Min(10, { message: '提现金额10个起兑换' }) // 大于10
+  @IsDivisibleBy(10, { message: '提现金额必须是10的倍数' }) // 10的倍数
+  readonly wealth: number;
+
+  @ApiProperty({
+    description: '提现银行编号'
+  })
+  @IsInt()
+  readonly bank_id: number;
+
+  @ApiProperty({
+    description: '安全密码'
+  })
+  @IsString()
+  @Matches(/^\w{8,18}$/, { message: '安全密码由8-18个字符，字母/数字/下划线组成' }) // 8-18个字符，字母/数字/下划线组成
+  readonly password_security: string;
 }
 
 // 整个用户信息实体

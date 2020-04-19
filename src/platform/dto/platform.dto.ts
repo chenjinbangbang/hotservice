@@ -76,7 +76,7 @@ export class AlterPlatformDto extends CreatePlatformDto {
 }
 
 // 平台账号审核状态是否通过实体
-export class StatusDto {
+export class StatusPlatformDto {
   @ApiProperty({
     description: '平台账号编号'
   })

@@ -11,7 +11,7 @@ export class Pay extends BaseEntity {
   // user: User;
 
   // 对应用户id
-  @Column({ type: 'bigint', comment: '用户id' })
+  @Column({ type: 'bigint', comment: '用户编号' })
   user_id: number;
 
   @Column({ comment: '交易方' })

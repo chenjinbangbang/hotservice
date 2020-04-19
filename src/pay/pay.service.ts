@@ -38,7 +38,7 @@ export class PayService {
       return resFormat(false, null, '充值失败');
     }
 
-    data.user_id = user.id; // 添加user_id
+    data.user_id = user.id; // 用户编号
 
     let pay = this.payRepo.create(data);
     let res = await this.payRepo.save(pay);
@@ -49,7 +49,6 @@ export class PayService {
 
   // 更改充值状态（后台管理）
   async payStatus(data) {
-
     // 只能输入1,2
     if (![1, 2].includes(data.status)) {
       return resFormat(false, null, '充值状态参数异常');

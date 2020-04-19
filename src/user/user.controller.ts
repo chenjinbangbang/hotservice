@@ -1,7 +1,7 @@
 import { Controller, Get, Body, Put, ForbiddenException, Res, Post, Param, Query, UseGuards, Request } from '@nestjs/common';
 import { UserService } from './user.service';
 // import { User } from 'src/entity/user.entity';
-import { UserSearchDto, UserStatusDto, UserDto, EmailDto, goldBuyDto, UsernameDto, QQDto, MobileDto } from './dto/user.dto';
+import { UserSearchDto, UserStatusDto, UserDto, EmailDto, goldBuyDto, UsernameDto, QQDto, MobileDto, goldCashDto, WealthDepositDto } from './dto/user.dto';
 import { ApiTags, ApiResponse, ApiBody, ApiProperty, ApiParam, ApiQuery, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { IsInt, IsString, IsDate, IsArray, Min, IsEmail } from 'class-validator';
 import { AuthGuard } from '@nestjs/passport';
@@ -37,8 +37,8 @@ export class UserController {
   @ApiOperation({ summary: '获取用户列表（后台管理）' })
   @ApiBody({ type: UserSearchDto })
   @ApiResponse({ type: [UserDto] }) // 响应的模型
-  userList(@Body() body: UserSearchDto) {
-    return this.userService.userList(body);
+  getList(@Body() body: UserSearchDto) {
+    return this.userService.getList(body);
   }
 
   // 获取某个用户的信息
@@ -101,4 +101,21 @@ export class UserController {
     return this.userService.goldBuy(req.user, body);
   }
 
+  // 金币兑现
+  @Put('gold/cash')
+  @ApiOperation({ summary: '金币兑现' })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  goldCash(@Request() req, @Body() body: goldCashDto) {
+    return this.userService.goldCash(req.user, body);
+  }
+
+  // 现金提现
+  @Put('wealth/deposit')
+  @ApiOperation({ summary: '现金提现' })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  wealthDeposit(@Request() req, @Body() body: WealthDepositDto) {
+    return this.userService.wealthDeposit(req.user, body);
+  }
 }

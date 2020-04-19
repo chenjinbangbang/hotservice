@@ -8,14 +8,14 @@ export class LoginDto {
     description: '用户名'
   })
   @IsString()
-  @Matches(/^\w{6,18}$/) // 6-18个字符，字母/数字/下划线组成
+  @Matches(/^\w{6,18}$/, { message: '用户名由6-18个字符，字母/数字/下划线组成' }) // 6-18个字符，字母/数字/下划线组成
   readonly username: string;
 
   @ApiProperty({
     description: '密码'
   })
   @IsString()
-  @Matches(/^\w{8,18}$/) // 8-18个字符，字母/数字/下划线组成
+  @Matches(/^\w{8,18}$/, { message: '密码由8-18个字符，字母/数字/下划线组成' }) // 8-18个字符，字母/数字/下划线组成
   readonly password: string;
 }
 

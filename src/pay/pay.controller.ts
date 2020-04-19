@@ -31,7 +31,7 @@ export class PayController {
 
   // 更改充值状态（后台管理）（需要添加一条日志）
   @Put('status')
-  @ApiOperation({ summary: '更改充值状态（后台管理）' })
+  @ApiOperation({ summary: '更改充值状态（后台管理，暂无入口）' })
   @ApiBody({ type: PayStatusDto })
   payStatus(@Body() body: PayStatusDto) {
     console.log(body);

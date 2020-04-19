@@ -69,7 +69,7 @@ export class User extends BaseEntity {
 
   // @Column({ type: 'tinyint', comment: '角色', default: 0 })
   // role: number;
-  @Column({ type: 'enum', enum: ['user', 'origin', 'admin'], default: 'user', comment: '用户角色' })
+  @Column({ type: 'enum', enum: ['user', 'origin', 'admin'], default: 'user', comment: '用户角色（user：刷手，origin：创作者，admin：管理者）' })
   role: string
 
   @Column({ type: 'float', comment: '金币', default: 0, scale: 2, precision: 10 }) // scale：十进制列的比例，代表小数点右边的位数，并且不得大于精度。用于某些列类型
@@ -78,16 +78,16 @@ export class User extends BaseEntity {
   @Column({ type: 'float', comment: '现金', default: 0, scale: 2, precision: 10 })
   wealth: number;
 
-  @Column({ type: 'tinyint', comment: '是否被冻结', default: 0 })
+  @Column({ type: 'tinyint', comment: '是否被冻结（0：正常，1：冻结）', default: 0 })
   freeze_status: number;
 
   @Column({ type: 'varchar', comment: '冻结原因', default: '' })
   freeze_reason: string;
 
-  @Column({ type: 'tinyint', comment: '是否是VIP会员', default: 0 })
+  @Column({ type: 'tinyint', comment: '是否是VIP会员（0：不是，1：是）', default: 1 })
   isVip: number;
 
-  @Column({ type: 'tinyint', comment: '实名状态/审核状态', default: 0 })
+  @Column({ type: 'tinyint', comment: '实名状态/审核状态（0：未实名，1：待审核，2：审核不通过，3：已实名）', default: 0 })
   real_status: number;
 
   @Column({ type: 'tinyint', comment: '实名审核不通过原因', nullable: true })

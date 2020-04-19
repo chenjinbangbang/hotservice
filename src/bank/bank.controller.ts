@@ -2,7 +2,7 @@ import { Controller, Get, Query, Post, Body, Put, Delete, Request, UseGuards } f
 import { BankService } from './bank.service';
 import { ApiOperation, ApiTags, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 
-import { CreateBankDto, AlterBankDto, StatusDto, SearchBankDto } from './dto/bank.dto';
+import { CreateBankDto, AlterBankDto, SearchBankDto, StatusBankDto } from './dto/bank.dto';
 import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('银行卡相关')
@@ -61,7 +61,7 @@ export class BankController {
   // 银行卡审核状态是否通过（后台管理）
   @Put('status')
   @ApiOperation({ summary: '银行卡审核状态是否通过（后台管理）' })
-  checkStatus(@Body() body: StatusDto) {
+  checkStatus(@Body() body: StatusBankDto) {
     return this.bankService.checkStatus(body);
   }
 

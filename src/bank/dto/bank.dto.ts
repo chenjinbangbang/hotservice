@@ -80,7 +80,7 @@ export class AlterBankDto extends CreateBankDto {
 }
 
 // 审核状态是否通过实体
-export class StatusDto {
+export class StatusBankDto {
   @ApiProperty({
     description: '银行卡编号'
   })
@@ -95,5 +95,5 @@ export class StatusDto {
     description: '审核不通过原因（0：开户行与银行卡信息不对应，1：开户姓名与银行卡信息不对应，2：银行卡号填写有误当）（审核状态为1时必传）',
     required: false
   })
-  readonly reason: string;
+  readonly reason: number;
 }

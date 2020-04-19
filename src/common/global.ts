@@ -37,3 +37,23 @@ export function removeRawOne(data: object = {}, alias: string = '', extra: strin
 export function resFormat(success: boolean = true, data: any | null, msg: any | null) {
   return { success, data, msg };
 }
+
+/**
+ * 用于模糊查询，处理需要进行模糊查询的字段
+ * @param data 请求主体参数
+ * @param params 需要处理的字段，不存在/null/undefined统一则赋值为'%%'
+ * @param extras 不需要处理的字段
+ */
+export function searchParams(data: object, params: string[], extras: string[]) {
+  let searchData: any = {};
+  for (let key in data) {
+    for (let value of params) {
+      searchData[value] = (value !== key || data[key] === undefined || data[key] === null) ? '%%' : data[key];
+    }
+
+    if (!extras.includes(key)) {
+      searchData[key] = `%${data[key]}%`;
+    }
+  }
+  return searchData;
+}

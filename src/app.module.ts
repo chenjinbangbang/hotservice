@@ -17,6 +17,8 @@ import { BasicModule } from './basic/basic.module';
 import { PayModule } from './pay/pay.module';
 import { BankModule } from './bank/bank.module';
 import { PlatformModule } from './platform/platform.module';
+import { WealthModule } from './wealth/wealth.module';
+import { DepositModule } from './deposit/deposit.module';
 
 /**
  * 全局模块
@@ -42,7 +44,9 @@ import { PlatformModule } from './platform/platform.module';
     UserModule,
     PayModule,
     BankModule,
-    PlatformModule
+    PlatformModule,
+    WealthModule,
+    DepositModule
   ],
   controllers: [AppController],
   providers: [
