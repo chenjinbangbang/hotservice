@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsBoolean, Length, IsDate, IsDateString, IsNumber, IsEmail, Min, Matches, IsMobilePhone, IsDivisibleBy } from 'class-validator';
+import { IsString, IsInt, IsBoolean, Length, IsDate, IsDateString, IsNumber, IsEmail, Min, Matches, IsMobilePhone, IsDivisibleBy, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { PageDto } from 'src/common/dto';
 
@@ -78,7 +78,7 @@ export class UserStatusDto {
   readonly id: number
 
   @ApiProperty({
-    description: '改变的状态（0：未实名，1：待审核，2：审核不通过，3：已实名）',
+    description: '改变的状态（2：审核不通过，3：已实名）',
     default: 0
   })
   @IsInt()
@@ -126,7 +126,7 @@ export class MobileDto {
 }
 
 // 购买金币实体
-export class goldBuyDto {
+export class GoldBuyDto {
   @ApiProperty({
     description: '金币'
   })
@@ -136,7 +136,7 @@ export class goldBuyDto {
 }
 
 // 金币兑现实体
-export class goldCashDto {
+export class GoldCashDto {
   @ApiProperty({
     description: '金币（必须大于10，并且是10的倍数）',
     default: 10
@@ -149,7 +149,6 @@ export class goldCashDto {
   @ApiProperty({
     description: '安全密码'
   })
-  @IsString()
   @Matches(/^\w{8,18}$/, { message: '安全密码由8-18个字符，字母/数字/下划线组成' }) // 8-18个字符，字母/数字/下划线组成
   readonly password_security: string;
 }
@@ -174,12 +173,89 @@ export class WealthDepositDto {
   @ApiProperty({
     description: '安全密码'
   })
-  @IsString()
   @Matches(/^\w{8,18}$/, { message: '安全密码由8-18个字符，字母/数字/下划线组成' }) // 8-18个字符，字母/数字/下划线组成
   readonly password_security: string;
 }
 
-// 整个用户信息实体
+// 修改用户头像实体
+export class PortraitAlterDto {
+  @ApiProperty({
+    description: '用户头像'
+  })
+  @IsNotEmpty({ message: '请上传用户头像' })
+  readonly head_thumb: string;
+}
+
+// 修改登录密码实体
+export class PasswordAlterDto {
+  @ApiProperty({
+    description: '原登录密码'
+  })
+  @Matches(/^\w{8,18}$/, { message: '原登录密码由8-18个字符，字母/数字/下划线组成' }) // 8-18个字符，字母/数字/下划线组成
+  readonly password: string;
+
+  @ApiProperty({
+    description: '新登录密码'
+  })
+  @Matches(/^\w{8,18}$/, { message: '新登录密码由8-18个字符，字母/数字/下划线组成' }) // 8-18个字符，字母/数字/下划线组成
+  readonly new_password: string;
+
+  @ApiProperty({
+    description: '确认新登录密码'
+  })
+  @Matches(/^\w{8,18}$/, { message: '确认新登录密码由8-18个字符，字母/数字/下划线组成' }) // 8-18个字符，字母/数字/下划线组成
+  readonly new_password_confirm: string;
+}
+
+// 修改安全密码实体
+export class PasswordSecurityAlterDto {
+  @ApiProperty({
+    description: '原安全密码'
+  })
+  @Matches(/^\w{8,18}$/, { message: '原安全密码由8-18个字符，字母/数字/下划线组成' }) // 8-18个字符，字母/数字/下划线组成
+  readonly password_security: string;
+
+  @ApiProperty({
+    description: '新安全密码'
+  })
+  @Matches(/^\w{8,18}$/, { message: '新安全密码由8-18个字符，字母/数字/下划线组成' }) // 8-18个字符，字母/数字/下划线组成
+  readonly new_password_security: string;
+
+  @ApiProperty({
+    description: '确认新安全密码'
+  })
+  @Matches(/^\w{8,18}$/, { message: '确认新安全密码由8-18个字符，字母/数字/下划线组成' }) // 8-18个字符，字母/数字/下划线组成
+  readonly new_password_security_confirm: string;
+}
+
+// 实名认证
+export class IdentityDto {
+  @ApiProperty({
+    description: '真实姓名'
+  })
+  @Matches(/^([\u4E00-\u9FA5]+|[a-zA-Z]+)$/, { message: '请输入有效的姓名' })
+  readonly name: string;
+
+  @ApiProperty({
+    description: '身份证号码'
+  })
+  @Matches(/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/, { message: '请输入有效的身份证号码' })
+  readonly idcardno: string;
+
+  @ApiProperty({
+    description: '身份证正面'
+  })
+  @IsNotEmpty({ message: '请上传身份证正面' })
+  readonly idcard_src: string;
+
+  @ApiProperty({
+    description: '手持身份证半身照'
+  })
+  @IsNotEmpty({ message: '请上传手持身份证半身照' })
+  readonly body_idcard_src: string;
+}
+
+// 用户信息实体
 export class UserDto {
   @ApiProperty({
     description: '用户编号'

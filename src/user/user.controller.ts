@@ -1,7 +1,7 @@
 import { Controller, Get, Body, Put, ForbiddenException, Res, Post, Param, Query, UseGuards, Request } from '@nestjs/common';
 import { UserService } from './user.service';
 // import { User } from 'src/entity/user.entity';
-import { UserSearchDto, UserStatusDto, UserDto, EmailDto, goldBuyDto, UsernameDto, QQDto, MobileDto, goldCashDto, WealthDepositDto } from './dto/user.dto';
+import { UserSearchDto, UserStatusDto, UserDto, EmailDto, GoldBuyDto, UsernameDto, QQDto, MobileDto, GoldCashDto, WealthDepositDto, PortraitAlterDto, PasswordAlterDto, PasswordSecurityAlterDto, IdentityDto } from './dto/user.dto';
 import { ApiTags, ApiResponse, ApiBody, ApiProperty, ApiParam, ApiQuery, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { IsInt, IsString, IsDate, IsArray, Min, IsEmail } from 'class-validator';
 import { AuthGuard } from '@nestjs/passport';
@@ -35,6 +35,8 @@ export class UserController {
   // 获取用户列表（后台管理）
   @Post('list')
   @ApiOperation({ summary: '获取用户列表（后台管理）' })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @ApiBody({ type: UserSearchDto })
   @ApiResponse({ type: [UserDto] }) // 响应的模型
   getList(@Body() body: UserSearchDto) {
@@ -44,16 +46,18 @@ export class UserController {
   // 获取某个用户的信息
   @Get('info')
   @ApiOperation({ summary: '获取某个用户的信息' })
-  @ApiQuery({ name: 'id', description: '用户编号', type: 'number' })
-  userInfo(@Request() req, @Query() query) {
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  userInfo(@Request() req) {
     // console.log(req.user);
-    return this.userService.userInfo(query.id);
+    return this.userService.userInfo(req.user);
   }
 
-  // 更改实名状态/审核状态（需要添加一条日志）
+  // 更改实名状态/审核状态
   @Put('identity/status')
   @ApiOperation({ summary: '更改实名状态/审核状态' })
-  @ApiBody({ type: UserStatusDto })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   identityStatus(@Body() body: UserStatusDto) {
     console.log(body);
     return this.userService.identityStatus(body);
@@ -96,7 +100,7 @@ export class UserController {
   @ApiOperation({ summary: '购买金币' })
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  goldBuy(@Request() req, @Body() body: goldBuyDto) {
+  goldBuy(@Request() req, @Body() body: GoldBuyDto) {
     console.log(req.user);
     return this.userService.goldBuy(req.user, body);
   }
@@ -106,7 +110,7 @@ export class UserController {
   @ApiOperation({ summary: '金币兑现' })
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  goldCash(@Request() req, @Body() body: goldCashDto) {
+  goldCash(@Request() req, @Body() body: GoldCashDto) {
     return this.userService.goldCash(req.user, body);
   }
 
@@ -118,4 +122,41 @@ export class UserController {
   wealthDeposit(@Request() req, @Body() body: WealthDepositDto) {
     return this.userService.wealthDeposit(req.user, body);
   }
+
+  // 修改用户头像
+  @Put('portrait/alter')
+  @ApiOperation({ summary: '修改用户头像' })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  portraitAlter(@Request() req, @Body() body: PortraitAlterDto) {
+    return this.userService.portraitAlter(req.user, body);
+  }
+
+  // 修改登录密码
+  @Put('password/alter')
+  @ApiOperation({ summary: '修改登录密码' })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  passwordAlter(@Request() req, @Body() body: PasswordAlterDto) {
+    return this.userService.passwordAlter(req.user, body);
+  }
+
+  // 修改安全密码
+  @Put('password_security/alter')
+  @ApiOperation({ summary: '修改安全密码' })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  passwordSecurityAlter(@Request() req, @Body() body: PasswordSecurityAlterDto) {
+    return this.userService.passwordSecurityAlter(req.user, body);
+  }
+
+  // 实名认证
+  @Put('identity')
+  @ApiOperation({ summary: '实名认证' })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  identity(@Request() req, @Body() body: IdentityDto) {
+    return this.userService.identity(req.user, body);
+  }
+
 }

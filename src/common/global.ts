@@ -47,9 +47,16 @@ export function resFormat(success: boolean = true, data: any | null, msg: any | 
 export function searchParams(data: object, params: string[], extras: string[]) {
   let searchData: any = {};
   for (let key in data) {
-    for (let value of params) {
-      searchData[value] = (value !== key || data[key] === undefined || data[key] === null) ? '%%' : data[key];
+    // for (let value of params) {
+    //   c[value] = (value !== key || data[key] === undefined || data[key] === null) ? '%%' : data[key];
+    // }
+    // 判断是否存在，不存在则赋值为'%%'，存在则直接赋值
+    if (!params.includes(key) || data[key] === undefined || data[key] === null) {
+      searchData[key] = '%%'
+    } else {
+      searchData[key] = data[key]
     }
+
 
     if (!extras.includes(key)) {
       searchData[key] = `%${data[key]}%`;

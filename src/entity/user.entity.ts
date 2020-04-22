@@ -41,7 +41,7 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', comment: '手机号', unique: true, length: 11 }) // length长度没生效
   mobile: string;
 
-  @Column({ type: 'varchar', comment: '安全密码' })
+  @Column({ type: 'varchar', comment: '安全密码', select: false })
   password_security: string;
 
   // @Column({ type: 'timestamp', comment: '注册时间', default: () => 'CURRENT_TIMESTAMP' })
@@ -70,7 +70,7 @@ export class User extends BaseEntity {
   // @Column({ type: 'tinyint', comment: '角色', default: 0 })
   // role: number;
   @Column({ type: 'enum', enum: ['user', 'origin', 'admin'], default: 'user', comment: '用户角色（user：刷手，origin：创作者，admin：管理者）' })
-  role: string
+  role: string;
 
   @Column({ type: 'float', comment: '金币', default: 0, scale: 2, precision: 10 }) // scale：十进制列的比例，代表小数点右边的位数，并且不得大于精度。用于某些列类型
   gold: number;

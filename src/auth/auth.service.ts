@@ -35,15 +35,9 @@ export class AuthService {
 
   // 用户登录，登录方法，在auth.controller.ts执行，把需要的用户信息存到token里面
   async login(user: any) {
-    const { username, id, isVip, gold, wealth } = user;
-    const payload = {
-      username,
-      sub: id,
-      isVip,
-      gold,
-      wealth
-    }; // sub属性：保持我们的id值与JWT标准一致
-    console.log('token信息：', payload)
+    const { username, id, isVip, gold, wealth, role } = user;
+    const payload = { username, sub: id, isVip, gold, wealth, role }; // sub属性：保持我们的id值与JWT标准一致
+    console.log('token信息：', payload);
     return {
       access_token: this.jwtService.sign(payload), // sign()函数：用于从用户对象属性的子集生产jwt
       expiresIn: jwtConstants.expiresIn * 1000
@@ -52,55 +46,56 @@ export class AuthService {
 
   // 用户注册
   async register(data) {
+    let { username, email, qq, mobile, password, password_confirm, password_security, password_security_confirm } = data;
 
     // 检查用户名是否存在
-    const checkUsername = await this.userService.checkUsername(data.username);
+    const checkUsername = await this.userService.checkUsername(username);
     console.log(checkUsername);
     if (!checkUsername.success) {
       return checkUsername;
     }
 
     // 检查邮箱是否存在
-    const checkEmail = await this.userService.checkEmail(data.email);
+    const checkEmail = await this.userService.checkEmail(email);
     console.log(checkEmail);
     if (!checkEmail.success) {
       return checkEmail;
     }
 
     // 检查QQ号是否存在
-    const checkQQ = await this.userService.checkQQ(data.qq);
+    const checkQQ = await this.userService.checkQQ(qq);
     console.log(checkQQ);
     if (!checkQQ.success) {
       return checkQQ;
     }
 
     // 检查手机号码是否存在
-    const checkMobile = await this.userService.checkMobile(data.qq);
+    const checkMobile = await this.userService.checkMobile(mobile);
     console.log(checkMobile);
     if (!checkMobile.success) {
       return checkMobile;
     }
 
     // 密码和确认密码不一致
-    if (data.password !== data.password_confirm) {
+    if (password !== password_confirm) {
       return resFormat(false, null, '密码和确认密码不一致')
     }
 
     // 安全密码不能和密码相同
-    if (data.password === data.password_security) {
+    if (password === password_security) {
       return resFormat(false, null, '安全密码不能和密码相同')
     }
 
     // 安全密码和确认安全密码不一致
-    if (data.password_security !== data.password_security_confirm) {
+    if (password_security !== password_security_confirm) {
       return resFormat(false, null, '安全密码和确认安全密码不一致')
     }
 
     // 密码加密
-    data.password = crypto.createHmac('sha256', data.password).update('hot').digest('hex');
-    data.password_confirm = crypto.createHmac('sha256', data.password_confirm).update('hot').digest('hex');
-    data.password_security = crypto.createHmac('sha256', data.password_security).update('hot').digest('hex');
-    data.password_security_confirm = crypto.createHmac('sha256', data.password_security_confirm).update('hot').digest('hex');
+    password = crypto.createHmac('sha256', password).update('hot').digest('hex');
+    password_confirm = crypto.createHmac('sha256', password_confirm).update('hot').digest('hex');
+    password_security = crypto.createHmac('sha256', password_security).update('hot').digest('hex');
+    password_security_confirm = crypto.createHmac('sha256', password_security_confirm).update('hot').digest('hex');
 
     // 新增用户
     let user = this.userRepo.create(data);

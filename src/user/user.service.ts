@@ -42,22 +42,25 @@ export class UserService {
     console.log(data);
     let searchData: object = searchParams(data, ['search', 'role', 'freeze_status', 'isVip', 'real_status'], ['page', 'pageNum', 'create_time', 'last_login_time']);
 
+    console.log(searchData);
+
     // let builder = this.userRepo.createQueryBuilder('u');
 
     // return this.userRepo.find();
     try {
 
       let sql = this.userRepo.createQueryBuilder('user')
-        .select(['user.*', 'u.username referrer_username'])
+        .select(['user.*', 'u.username referrer_username', '(select count(*) from user where u.id = referrer_user_id) referrer_num', '(select count(*) from platform where status = 2 and user.id = user_id) platformStatusNum'])
         .leftJoinAndSelect(User, 'u', 'user.referrer_user_id = u.id')
-        .where('(user.id like :search or user.username like :search or user.email like :search or user.qq like :search or user.mobile like :search or user.freeze_reason like :search or user.name like :search or user.idcardno like :search)');
+        .where('(user.id like :search or user.username like :search or user.email like :search or user.qq like :search or user.mobile like :search or user.freeze_reason like :search or user.name like :search or user.idcardno like :search)')
+        .andWhere('user.role like :role and user.freeze_status like :freeze_status and user.isVip like :isVip and user.real_status like :real_status');
 
       if (data.create_time && data.create_time.length === 2) {
-        sql.andWhere('deposit.create_time between :create_time1 and :create_time2', { create_time1: data.create_time[0], create_time2: data.create_time[1] });
+        sql.andWhere('user.create_time between :create_time1 and :create_time2', { create_time1: data.create_time[0], create_time2: data.create_time[1] });
       }
 
       if (data.last_login_time && data.last_login_time.length === 2) {
-        sql.andWhere('deposit.last_login_time between :last_login_time1 and :last_login_time2', { create_time1: data.last_login_time[0], create_time2: data.last_login_time[1] });
+        sql.andWhere('user.last_login_time between :last_login_time1 and :last_login_time2', { create_time1: data.last_login_time[0], create_time2: data.last_login_time[1] });
       }
 
       let res: any = await sql
@@ -66,22 +69,14 @@ export class UserService {
         .setParameters(searchData)
         .getRawMany();
 
-      // let res = await this.userRepo.createQueryBuilder('user')
-      //   .select(['user.*', 'u.username referrer_username'])
-      //   .leftJoinAndSelect(User, 'u', 'user.referrer_user_id = u.id')
-      //   .where('(user.id like :search or user.username like :search or user.email like :search or user.qq like :search or user.mobile like :search or user.freeze_reason like :search or user.name like :search or user.idcardno like :search)')
-      //   .andWhere('user.role like :role and user.freeze_status like :freeze_status and user.isVip like :isVip and user.real_status like :real_status')
-      //   .where(data.create_time ? 'user.create_time between :create_time1 and :create_time2' : '', { create_time1: data.create_time ? data.create_time[0] : '', create_time2: data.create_time ? data.create_time[1] : '' })
-      //   .where(data.last_login_time ? 'user.last_login_time between :last_login_time1 and :last_login_time2' : '', { last_login_time1: data.last_login_time ? data.last_login_time[0] : '', last_login_time2: data.last_login_time ? data.last_login_time[1] : '' })
-      //   // .skip((data.page - 1) * data.pageNum)
-      //   // .take(data.pageNum)
-      //   .offset((data.page - 1) * data.pageNum)
-      //   .limit(data.pageNum)
-      //   .setParameters(searchData)
-      //   .getRawMany();
-
       // 使用getRawMany()方法时，删除所有原始数据，并且不可返回password和password_security
       removeRawMany(res, 'u_', ['password', 'password_security']);
+
+      // 处理是否绑定了平台账号，platformStatusNum大于0，则isPlatform为true，否则为false
+      res.forEach(item => {
+        item.isPlatform = Number(item.platformStatusNum) > 0;
+        delete item.platformStatusNum;
+      });
 
       // 查询总数
       let count = await sql.getCount();
@@ -95,29 +90,22 @@ export class UserService {
   }
 
   // 获取某个用户的信息
-  async userInfo(id) {
-    // let { id } = data
-
-    // let searchData: any = {};
-    // for (let key in data) {
-    //   if (!['page', 'pageNum', 'create_time', 'last_login_time'].includes(key)) {
-    //     searchData[key] = `%${data[key]}%`;
-    //   }
-    // }
-    // console.log(searchData)
-
-    // let builder = this.userRepo.createQueryBuilder('u');
+  async userInfo(user) {
+    let { id } = user
 
     // return this.userRepo.find();
     try {
       let res = await this.userRepo.createQueryBuilder('user')
-        .select(['user.*', 'u.username referrer_username'])
+        .select(['user.*', 'u.username referrer_username', '(select count(*) from user where u.id = referrer_user_id) referrer_num', '(select count(*) from platform where status = 2 and user.id = user_id) platformStatusNum'])
         .leftJoinAndSelect(User, 'u', 'user.referrer_user_id = u.id')
         .where('user.id = :id', { id })
         .getRawOne();
 
       // 使用getRawOne()方法时，删除所有原始数据，并且不可返回password和password_security
       removeRawOne(res, 'u_', ['password', 'password_security']);
+
+      res.isPlatform = Number(res.platformStatusNum) > 0;
+      delete res.platformStatusNum;
 
       return resFormat(true, res, null);
     } catch (err) {
@@ -129,8 +117,8 @@ export class UserService {
   // 更改实名状态/审核状态
   async identityStatus(data) {
 
-    // 只能输入0,1,2,3
-    if (![0, 1, 2, 3].includes(data.real_status)) {
+    // 只能传2,3
+    if (![2, 3].includes(data.real_status)) {
       return resFormat(false, null, '实名状态/审核状态参数异常');
     }
 
@@ -301,6 +289,114 @@ export class UserService {
       return resFormat(true, null, '已提现，待到账（到账时间以各个银行提现速度为准）');
     } else {
       return resFormat(false, null, '现金提现失败');
+    }
+  }
+
+  // 修改用户头像
+  async portraitAlter(user, data) {
+    const { id } = user;
+
+    let res = await this.userRepo.update(id, data);
+    console.log(res);
+
+    if (res.raw.affectedRows > 0) {
+      return resFormat(true, null, '修改用户头像成功');
+    } else {
+      return resFormat(false, null, '修改用户头像失败');
+    }
+  }
+
+  // 修改登录密码
+  async passwordAlter(user, data) {
+    const { id } = user;
+    let { password, new_password, new_password_confirm } = data;
+
+    // 原登录密码不能和新登录密码相同
+    if (password === new_password) {
+      ;
+      return resFormat(false, null, '原登录密码不能和新登录密码相同');
+    }
+
+    // 新登录密码和确认新登录密码不一致
+    if (new_password !== new_password_confirm) {
+      return resFormat(false, null, '新登录密码和确认新登录密码不一致');
+    }
+
+    // 密码加密
+    password = crypto.createHmac('sha256', password).update('hot').digest('hex');
+    new_password = crypto.createHmac('sha256', new_password).update('hot').digest('hex');
+    new_password_confirm = crypto.createHmac('sha256', new_password_confirm).update('hot').digest('hex');
+
+    let checkPassword = await this.userRepo.findOne({ id, password });
+    if (!checkPassword) {
+      return resFormat(false, null, '输入原登录密码不正确');
+    }
+
+    let checkPasswordSecurity = await this.userRepo.findOne({ id, password_security: new_password });
+    if (!checkPasswordSecurity) {
+      return resFormat(false, null, '新登录密码不能和安全密码相同');
+    }
+
+    let res = await this.userRepo.update(id, { password: new_password });
+
+    if (res.raw.affectedRows > 0) {
+      return resFormat(true, null, '修改登录密码成功');
+    } else {
+      return resFormat(false, null, '修改登录密码失败');
+    }
+  }
+
+  // 修改安全密码
+  async passwordSecurityAlter(user, data) {
+    const { id } = user;
+    let { password_security, new_password_security, new_password_security_confirm } = data;
+
+    // 原安全密码不能和新安全密码相同
+    if (password_security === new_password_security) {
+      return resFormat(false, null, '原安全密码不能和新安全密码相同');
+    }
+
+    // 新安全密码和确认新安全密码不一致
+    if (new_password_security !== new_password_security_confirm) {
+      return resFormat(false, null, '新安全密码和确认新安全密码不一致');
+    }
+
+    // 密码加密
+    password_security = crypto.createHmac('sha256', password_security).update('hot').digest('hex');
+    new_password_security = crypto.createHmac('sha256', new_password_security).update('hot').digest('hex');
+    new_password_security_confirm = crypto.createHmac('sha256', new_password_security_confirm).update('hot').digest('hex');
+
+    let checkPasswordSecurity = await this.userRepo.findOne({ id, password_security });
+    if (!checkPasswordSecurity) {
+      return resFormat(false, null, '输入原安全密码不正确')
+    }
+
+    let checkPassword = await this.userRepo.findOne({ id, password: new_password_security });
+    if (!checkPassword) {
+      return resFormat(false, null, '新安全密码不能和登录密码相同');
+    }
+
+    let res = await this.userRepo.update(id, { password_security: new_password_security });
+
+    if (res.raw.affectedRows > 0) {
+      return resFormat(true, null, '修改安全密码成功');
+    } else {
+      return resFormat(false, null, '修改安全密码失败');
+    }
+  }
+
+  // 实名认证
+  async identity(user, data) {
+    const { id } = user;
+
+    data.real_status = 1;
+
+    let res = await this.userRepo.update(id, data);
+
+    if (res.raw.affectedRows > 0) {
+      return resFormat(true, null, '实名认证成功');
+    } else {
+      return resFormat(false, null, '实名认证失败');
     }
 
   }

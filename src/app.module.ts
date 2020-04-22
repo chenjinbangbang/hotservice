@@ -19,6 +19,8 @@ import { BankModule } from './bank/bank.module';
 import { PlatformModule } from './platform/platform.module';
 import { WealthModule } from './wealth/wealth.module';
 import { DepositModule } from './deposit/deposit.module';
+import { CommissionModule } from './commission/commission.module';
+import { NoticeModule } from './notice/notice.module';
 
 /**
  * 全局模块
@@ -46,7 +48,9 @@ import { DepositModule } from './deposit/deposit.module';
     BankModule,
     PlatformModule,
     WealthModule,
-    DepositModule
+    DepositModule,
+    CommissionModule,
+    NoticeModule
   ],
   controllers: [AppController],
   providers: [

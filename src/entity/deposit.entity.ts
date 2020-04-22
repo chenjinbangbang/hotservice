@@ -1,6 +1,5 @@
 import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
 
-
 @Entity()
 export class Deposit extends BaseEntity {
   @PrimaryGeneratedColumn({ type: 'bigint', comment: '提现编号' })
