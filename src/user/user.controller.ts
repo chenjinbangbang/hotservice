@@ -3,7 +3,6 @@ import { UserService } from './user.service';
 // import { User } from 'src/entity/user.entity';
 import { UserSearchDto, UserStatusDto, UserDto, EmailDto, GoldBuyDto, UsernameDto, QQDto, MobileDto, GoldCashDto, WealthDepositDto, PortraitAlterDto, PasswordAlterDto, PasswordSecurityAlterDto, IdentityDto } from './dto/user.dto';
 import { ApiTags, ApiResponse, ApiBody, ApiProperty, ApiParam, ApiQuery, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { IsInt, IsString, IsDate, IsArray, Min, IsEmail } from 'class-validator';
 import { AuthGuard } from '@nestjs/passport';
 
 // 枚举

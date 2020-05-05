@@ -21,6 +21,7 @@ import { WealthModule } from './wealth/wealth.module';
 import { DepositModule } from './deposit/deposit.module';
 import { CommissionModule } from './commission/commission.module';
 import { NoticeModule } from './notice/notice.module';
+import { TaskModule } from './task/task.module';
 
 /**
  * 全局模块
@@ -50,7 +51,8 @@ import { NoticeModule } from './notice/notice.module';
     WealthModule,
     DepositModule,
     CommissionModule,
-    NoticeModule
+    NoticeModule,
+    TaskModule
   ],
   controllers: [AppController],
   providers: [

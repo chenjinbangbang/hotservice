@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Platform } from 'src/entity/platform.entity';
 import { Repository } from 'typeorm';
-import { resFormat, removeRawMany } from 'src/common/global';
+import { resFormat, removeRawMany, searchParams, retainMany } from 'src/common/global';
 import { BasicService } from 'src/basic/basic.service';
 import { User } from 'src/entity/user.entity';
 
@@ -27,15 +27,30 @@ export class PlatformService {
     return resFormat(true, arr, null);
   }
 
+  // 根据平台类型获取平台账号列表
+  async getListByPlatformType(user, platform_type) {
+    // console.log(platform_type)
+
+    if (![0, 1, 2, 3].includes(platform_type)) {
+      return resFormat(false, null, '平台类型参数异常');
+    }
+
+    let res: any[] = await this.platformRepo.find({ user_id: user.id, platform_type });
+
+    // 保留部分数据
+    retainMany(res, ['id', 'platform_name']);
+
+    return resFormat(true, res, null);
+  }
 
   // 获取某个平台账号的信息
-  async getDetail(data) {
-    let res = await this.platformRepo.findOne({ id: data.id });
+  async getDetail(user, id) {
+    let res = await this.platformRepo.findOne({ user_id: user.id, id });
 
     if (res) {
       return resFormat(true, res, null);
     } else {
-      return resFormat(true, '查不到该平台账号', null);
+      return resFormat(true, '在当前用户查不到该平台账号', null);
     }
   }
 
@@ -65,10 +80,10 @@ export class PlatformService {
   }
 
   // 修改平台账号
-  async alter(data) {
-    let isExist = await this.platformRepo.findOne(data.id);
+  async alter(user, data) {
+    let isExist = await this.platformRepo.findOne({ user_id: user.id, id: data.id });
     if (!isExist) {
-      return resFormat(true, '查不到该平台账号', null);
+      return resFormat(true, '在当前用户查不到该平台账号', null);
     }
 
     let res = await this.platformRepo.update(data.id, data);
@@ -82,13 +97,13 @@ export class PlatformService {
   }
 
   // 删除平台账号
-  async delete(data) {
-    let isExist = await this.platformRepo.findOne(data.id);
+  async delete(user, id) {
+    let isExist = await this.platformRepo.findOne({ user_id: user.id, id });
     if (!isExist) {
-      return resFormat(true, '查不到该平台账号', null);
+      return resFormat(true, '在当前用户查不到该平台账号', null);
     }
 
-    let res = await this.platformRepo.delete(data.id);
+    let res = await this.platformRepo.delete(id);
     console.log(res);
 
     if (res.raw.affectedRows > 0) {

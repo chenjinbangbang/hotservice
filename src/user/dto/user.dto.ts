@@ -6,8 +6,8 @@ import { PageDto } from 'src/common/dto';
 export class UserSearchDto extends PageDto {
   // 模糊搜索：编号(id)，用户名(username)，师傅(referrer_username)，E-mail(email)，QQ(qq)，手机号(mobile)，冻结原因(freeze_reason)，真实姓名(name)，身份证号码(idcardno)
   @ApiProperty({
-    // required: false,
     description: '查询关键字，模糊搜索（编号，用户名，师傅，E-mail，QQ，手机号，冻结原因，真实姓名，身份证号码）',
+    default: ''
   })
   @IsString()
   readonly search: string;

@@ -4,7 +4,6 @@ import { IsInt, Min } from "class-validator";
 // 分页实体
 export class PageDto {
   @ApiProperty({
-    type: 'number',
     description: '当前页',
     default: 1
   })
@@ -13,7 +12,6 @@ export class PageDto {
   readonly page: number;
 
   @ApiProperty({
-    type: 'number',
     description: '一页的条数',
     default: 10
   })

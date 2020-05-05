@@ -53,7 +53,7 @@ export class User extends BaseEntity {
   @CreateDateColumn({ comment: '注册时间' })
   create_time: Date;
 
-  @UpdateDateColumn({ comment: '最后登录时间' })
+  @Column({ type: 'timestamp', comment: '最后登录时间', default: () => 'CURRENT_TIMESTAMP' })
   last_login_time: Date;
 
   // 是自动设置为实体的插入日期的特殊列，您无需设置此列-它会自动设置
@@ -71,6 +71,9 @@ export class User extends BaseEntity {
   // role: number;
   @Column({ type: 'enum', enum: ['user', 'origin', 'admin'], default: 'user', comment: '用户角色（user：刷手，origin：创作者，admin：管理者）' })
   role: string;
+
+  @Column({ type: 'float', comment: '赚取金币数', default: 0, scale: 2, precision: 10 })
+  gold_num: number;
 
   @Column({ type: 'float', comment: '金币', default: 0, scale: 2, precision: 10 }) // scale：十进制列的比例，代表小数点右边的位数，并且不得大于精度。用于某些列类型
   gold: number;

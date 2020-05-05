@@ -28,6 +28,9 @@ export class AuthService {
     const user = await this.userService.login(username, pass);
 
     if (user) {
+      // 更新登录时间
+      await this.userRepo.update(user.id, { last_login_time: new Date() })
+
       return user;
     }
     return null;

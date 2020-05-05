@@ -44,11 +44,7 @@ export class UserService {
 
     console.log(searchData);
 
-    // let builder = this.userRepo.createQueryBuilder('u');
-
-    // return this.userRepo.find();
     try {
-
       let sql = this.userRepo.createQueryBuilder('user')
         .select(['user.*', 'u.username referrer_username', '(select count(*) from user where u.id = referrer_user_id) referrer_num', '(select count(*) from platform where status = 2 and user.id = user_id) platformStatusNum'])
         .leftJoinAndSelect(User, 'u', 'user.referrer_user_id = u.id')
