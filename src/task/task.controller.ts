@@ -46,4 +46,6 @@ export class TaskController {
     console.log(query);
     return this.taskService.getListSimple(req.user, query);
   }
+
+
 }

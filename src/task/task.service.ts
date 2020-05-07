@@ -141,10 +141,9 @@ export class TaskService {
     const { id } = user;
     let { platform_type, platform_id, task_img1, task_img2, task_entry, complete_countdown_time, task_num, attention_time, comment_content, transpond, transpond_content, remark, goldNum } = data;
 
-    console.log(data);
+    // console.log(data);
     let taskArr: any[] = [];
     for (let i = 0; i < task_num; i++) {
-
       let taskData: any = {
         platform_type,
         platform_id,
@@ -157,28 +156,36 @@ export class TaskService {
       }
 
       // 判断是否有评价内容，有则处理
-      if (comment_content.length > 0) {
+      if (comment_content.length > i) {
         // 有评价内容时
-        let commentIndex = Math.floor(Math.random() * comment_content.length); // 0, 1
-        taskData.comment_content = comment_content[commentIndex];
-
-        comment_content.splice(commentIndex, 1);
+        taskData.comment_content = comment_content[i];
       }
 
-      // 判断是否有转发，没有则transpond为0，任务金币平均
+      // 判断是否有转发，没有则任务金币平均
       if (transpond === 0) {
-        taskData.transpond = 0
         taskData.gold = goldNum / task_num
       } else if (transpond === 1) {
         // 有转发时
-        // 
+        // [
+        //   {
+        //     type: 0,
+        //     content: ''
+        //   }
+        // ]
+        // taskData.gold = goldNum / task_num
+        if (transpond_content.length > i) {
+          let { type, content } = transpond_content[i];
+          taskData.transpond = 1
+          taskData.transpond_type = type
+          taskData.transpond_content = content
+          // taskData.gold = goldNum / task_num
+        }
       }
       console.log(taskData);
 
       let taskCreateData = this.taskRepo.create(taskData);
       taskArr.push(taskCreateData)
     }
-
   }
 
   // 获取可接任务列表（刷手）
