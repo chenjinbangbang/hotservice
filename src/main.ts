@@ -14,12 +14,17 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   // app.useGlobalFilters(new HttpException());
   // console.log(join(__dirname, '..', 'uploads'));
+
+  // 静态文件托管
   app.useStaticAssets(
     join(__dirname, '..', 'uploads'),
     { prefix: '/static/' } // 配置虚拟路径
   ) // 配置静态资源服务器
   // app.setBaseViewsDir(join(__dirname, '..', 'views')) // 配置html模板
   // app.setViewEngine('jade') // 配置模板引擎
+
+  // 处理跨域
+  app.enableCors()
 
   // 配置swagger选项对象
   const options = new DocumentBuilder() // DocumentBuilder有助于构建符合OpenAPI规范的基础文档。
