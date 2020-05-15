@@ -298,9 +298,21 @@ export class TaskService {
     let searchData: any = searchParams(data, ['platform_type', 'platform_id'], ['page', 'pageNum']);
     console.log(searchData);
 
+    //   let sql = this.userRepo.createQueryBuilder('user')
+    //   .select(['user.*', 'u.username referrer_username', '(select count(*) from user where u.id = referrer_user_id) referrer_num', '(select count(*) from platform where status = 2 and user.id = user_id) platformStatusNum'])
+    //   .leftJoinAndSelect(User, 'u', 'user.referrer_user_id = u.id')
+    //   .where('(user.id like :search or user.username like :search or user.email like :search or user.qq like :search or user.mobile like :search or user.freeze_reason like :search or user.name like :search or user.idcardno like :search)')
+    //   .andWhere('user.role like :role and user.freeze_status like :freeze_status and user.isVip like :isVip and user.real_status like :real_status');
+
+    // if (data.create_time && data.create_time.length === 2) {
+    //   sql.andWhere('user.create_time between :create_time1 and :create_time2', { create_time1: data.create_time[0], create_time2: data.create_time[1] });
+    // }
+
     // 按照task_id,platform_type,platform_head_thumb分组
     // task_id：父任务编号，platform_type：活动平台类型，platform_name：平台账号，gold：金币数，task_num：总任务数，statusNum0：未开始任务数，statusNum1：进行中任务数，statusNum2：待审核任务数，statusNum3：审核通过任务数，statusNum4：审核不通过任务数，statusNum5：已取消任务数，statusNum6：违规任务数，publish_time：发布时间
-    let res: any = await this.taskRepo.query(`select t.task_id, t.platform_type, p.platform_name, sum(gold) gold, (select count(*) from task where task_id = t.task_id) task_num, (select count(*) from task where status = 0 and task_id = t.task_id) statusNum0, t.publish_time from task t left join platform p on t.platform_id = p.id where t.user_id = '${id}' and t.platform_type like '${searchData.platform_type}' and  t.platform_id like '${searchData.platform_id}' group by t.task_id, t.platform_type, p.platform_name, t.publish_time limit ${(page - 1) * pageNum}, ${pageNum}`);
+    // let res: any = await this.taskRepo.query(`select t.task_id, t.platform_type, p.platform_name, sum(gold) gold, (select count(*) from task where task_id = t.task_id) task_num, (select count(*) from task where status = 0 and task_id = t.task_id) statusNum0, t.publish_time from task t left join platform p on t.platform_id = p.id where t.user_id = '${id}' and t.platform_type like '${searchData.platform_type}' and  t.platform_id like '${searchData.platform_id}' group by t.task_id, t.platform_type, p.platform_name, t.publish_time limit ${(page - 1) * pageNum}, ${pageNum}`);
+    let sql = this.taskRepo.createQueryBuilder('task')
+      .select([])
 
     return resFormat(true, res, null);
   }
