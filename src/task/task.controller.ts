@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, Put, Patch, Query, Request, UseGuards, Req } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { ApiOperation, ApiTags, ApiProperty, ApiBody, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { TaskSearchDto, IdDto, PublishTaskDto, taskSimpleDto } from './dto/task.dto';
+import { TaskSearchDto, IdDto, PublishTaskDto, TaskSimpleDto, TaskIdDto, TaskListDto } from './dto/task.dto';
 import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('任务相关')
@@ -11,9 +11,10 @@ import { AuthGuard } from '@nestjs/passport';
 export class TaskController {
   constructor(private readonly taskService: TaskService) { }
 
-  // 获取任务列表（后台管理，根据id查询查询）
+  // ====================================== 后台管理 ======================================
+  // 获取任务列表（后台管理，根据id查询）
   @Post('list/by_id')
-  @ApiOperation({ summary: '获取任务列表（后台管理，根据id查询查询）' })
+  @ApiOperation({ summary: '获取任务列表（后台管理，根据id查询）' })
   getListById(@Body() body: TaskSearchDto) {
     return this.taskService.getListById(body);
   }
@@ -32,6 +33,8 @@ export class TaskController {
     return this.taskService.changeStatus(body);
   }
 
+
+  // ====================================== 创作者 ======================================
   // 发布任务（创作者）
   @Post('create')
   @ApiOperation({ summary: '发布任务（创作者）' })
@@ -39,10 +42,33 @@ export class TaskController {
     return this.taskService.publishTask(req.user, body);
   }
 
+  // 获取创作者任务统计数据（创作者）
+  @Get('task/by_origin')
+  @ApiOperation({ summary: '获取创作者任务统计数据（创作者）' })
+  getStateByOrigin(@Request() req) {
+    return this.taskService.getStateByOrigin(req.user);
+  }
+
+  // 获取创作者任务列表（创作者，根据task_id查询）
+  @Post('list/by_task_id')
+  @ApiOperation({ summary: '获取创作者任务列表（创作者，根据task_id查询）' })
+  getListByTaskId(@Request() req, @Body() body: TaskListDto) {
+    return this.taskService.getListByTaskId(req.user, body);
+  }
+
+  // 取消任务（创作者）
+  @Patch('cancel')
+  @ApiOperation({ summary: '取消任务（创作者）' })
+  taskCancel(@Request() req, @Body() body: TaskIdDto) {
+    return this.taskService.taskCancel(req.user, body);
+  }
+
+
+  // ====================================== 刷手 ======================================
   // 获取可接任务列表（刷手）
   @Get('list/simple')
   @ApiOperation({ summary: '获取可接任务列表（刷手）' })
-  getListSimple(@Request() req, @Query() query: taskSimpleDto) {
+  getListSimple(@Request() req, @Query() query: TaskSimpleDto) {
     console.log(query);
     return this.taskService.getListSimple(req.user, query);
   }

@@ -184,6 +184,7 @@ export class UserService {
       return resFormat(false, null, '现金余额不足，请充值');
     }
 
+    // 更新用户的金币数和现金
     let res = await this.userRepo.query(`update user set gold = concat(gold + ${gold}), wealth = concat(wealth - ${gold}) where id = ${id}`);
     console.log(res);
 

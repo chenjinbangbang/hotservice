@@ -139,8 +139,41 @@ export class PublishTaskDto {
   readonly goldNum: number;
 }
 
+// 获取创作者任务列表实体
+export class TaskListDto extends PageDto {
+  @ApiProperty({
+    description: '活动平台类型（""：搜索全部，0：今日头条，1：抖音短视频，2：火山小视频，3：快手）',
+    default: '',
+    required: false
+  })
+  platform_type: string;
+
+  @ApiProperty({
+    description: '平台账号',
+    default: '',
+    required: false
+  })
+  platform_id: string;
+
+  @ApiProperty({
+    description: '发布时间',
+    type: [String],
+    required: false
+  })
+  readonly publish_time: null | string[];
+}
+
+// 取消任务实体
+export class TaskIdDto {
+  @ApiProperty({
+    description: '父任务编号'
+  })
+  @IsInt()
+  readonly task_id: number;
+}
+
 // 获取可接任务列表实体
-export class taskSimpleDto extends PageDto {
+export class TaskSimpleDto extends PageDto {
   @ApiProperty({
     description: '活动平台类型（""：搜索全部，0：今日头条，1：抖音短视频，2：火山小视频，3：快手）',
     default: '',

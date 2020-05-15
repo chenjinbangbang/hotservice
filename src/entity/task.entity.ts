@@ -36,7 +36,9 @@ export class Task {
   @Column({ type: 'tinyint', comment: '任务活动入口（0：搜索账号进入）', default: 0 })
   task_entry: number;
 
-  @CreateDateColumn({ comment: '任务发布时间' })
+  // @CreateDateColumn({ comment: '任务发布时间' })
+  // publish_time: Date;
+  @Column({ type: 'timestamp', comment: '任务发布时间' })
   publish_time: Date;
 
   @Column({ type: 'float', comment: '任务金币', default: 0, scale: 2, precision: 10 })
