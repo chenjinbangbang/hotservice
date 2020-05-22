@@ -8,6 +8,8 @@ import { Connection } from 'typeorm';
 import { APP_PIPE, APP_FILTER } from '@nestjs/core';
 // import { Photo } from './photo/photo.entity'; // 使用photo实体，需要让TypeORM知道它插入实体数组
 
+import { ScheduleModule } from '@nestjs/schedule'
+
 import { HttpExceptionFilter } from './common/http-exception.filter'
 
 // 模块
@@ -42,6 +44,8 @@ import { TaskModule } from './task/task.module';
         synchronize: true // 定义数据库表结构与实体类字段同步（这里一旦数据库少了字段就会自动加入，根据需要来使用）
       }
     ),
+    // 激活工作调度
+    ScheduleModule.forRoot(),
     AuthModule,
     BasicModule,
     UserModule,

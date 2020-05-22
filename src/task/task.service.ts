@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Task } from 'src/entity/task.entity';
 import { Repository } from 'typeorm';
+import { Cron } from '@nestjs/schedule'
+
 import { searchParams, removeRawMany, resFormat } from 'src/common/global';
+import { Task } from 'src/entity/task.entity';
 import { User } from 'src/entity/user.entity';
 import { Platform } from 'src/entity/platform.entity';
 import { WealthService } from 'src/wealth/wealth.service';
@@ -14,6 +16,14 @@ export class TaskService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     private readonly wealthService: WealthService
   ) { }
+
+  private readonly logger = new Logger(TaskService.name);
+
+  // 每秒钟执行一次
+  // @Cron('* * * * * *')
+  // handleCron() {
+  //   this.logger.debug('每秒钟执行一次');
+  // }
 
   // ================================================ 公共接口 ================================================
   // 更改任务状态（后台管理：更改为违规状态status=6，创作者：更改为审核通过status=3，审核不通过status=4，刷手：完成任务（status=2），放弃任务（status=0），任务审核通过（status=3））
