@@ -15,8 +15,63 @@ export class TaskService {
     private readonly wealthService: WealthService
   ) { }
 
-  // ====================================== 后台管理 ======================================
-  // 获取任务列表（后台管理，根据id查询）
+  // ================================================ 公共接口 ================================================
+  // 更改任务状态（后台管理：更改为违规状态status=6，创作者：更改为审核通过status=3，审核不通过status=4，刷手：完成任务（status=2），放弃任务（status=0），任务审核通过（status=3））
+  async changeStatus(user, data) {
+    const { id: user_id, role } = user;
+    const { id, status, status_reason, status_reason_imgs } = data
+
+    let updateParam: any = { status }
+
+    let isExist = await this.taskRepo.findOne(id);
+    if (!isExist) {
+      return resFormat(false, null, '该任务不存在');
+    }
+
+    switch (role) {
+      // 管理员
+      case 'admin':
+        if (status !== 6) {
+          return resFormat(false, null, '任务状态异常');
+        }
+        break;
+      // 创作者
+      case 'origin':
+        if (![3, 4].includes(status)) {
+          return resFormat(false, null, '任务状态异常');
+        }
+
+        if (status === 4) {
+          if (!(status_reason && status_reason.length > 0)) {
+            return resFormat(false, null, '任务状态为4时，审核不通过原因必传');
+          }
+
+          updateParam.status_reason = status_reason
+          updateParam.status_reason_imgs = status_reason_imgs || []
+        }
+        break;
+      // 刷手
+      case 'user':
+        if (![0, 2, 3].includes(status)) {
+          return resFormat(false, null, '任务状态异常');
+        }
+        break;
+      default:
+        break;
+    }
+
+    let res = await this.taskRepo.update(id, updateParam);
+
+    if (res.raw.affectedRows > 0) {
+      return resFormat(true, null, '更改任务状态成功');
+    } else {
+      return resFormat(false, null, '更改任务状态失败');
+    }
+  }
+
+
+  // ================================================ 后台管理 ================================================
+  // 获取子任务列表（后台管理，根据id查询）
   async getListById(data) {
     console.log(data);
     let searchData: object = searchParams(data, ['id', 'username', 'platform_name', 'takeover_platform_name', 'platform_type', 'status'], ['page', 'pageNum']);
@@ -120,26 +175,8 @@ export class TaskService {
     return resFormat(true, res, null);
   }
 
-  // 更改任务状态为违规状态（后台管理）
-  async changeStatus(data) {
-    const { id } = data;
 
-    let isExist = await this.taskRepo.findOne(id);
-    if (!isExist) {
-      return resFormat(false, null, '该任务不存在');
-    }
-
-    let res = await this.taskRepo.update(id, { status: 6 });
-
-    if (res.raw.affectedRows > 0) {
-      return resFormat(true, null, '更改任务状态为违规状态成功');
-    } else {
-      return resFormat(false, null, '更改任务状态为违规状态失败');
-    }
-  }
-
-
-  // ====================================== 创作者 ======================================
+  // ================================================ 创作者 ================================================
   // 发布任务（创作者）
   async publishTask(user, data) {
     const { id } = user;
@@ -157,7 +194,7 @@ export class TaskService {
     console.log('task_id：', task_id);
 
     // 发布时间
-    let publish_time =  new Date()
+    let publish_time = new Date()
 
     // console.log(data);
     let taskArr: any[] = [];
@@ -240,7 +277,7 @@ export class TaskService {
     }
   }
 
-  // 获取创作者任务统计数据（创作者）
+  // 获取创作者的父任务统计数据（创作者）
   async getStateByOrigin(user) {
     const { id } = user;
 
@@ -290,34 +327,64 @@ export class TaskService {
     return resFormat(true, res, null);
   }
 
-  // 获取创作者任务列表（创作者，根据task_id查询）
+  // 获取创作者的父任务列表（创作者，根据task_id查询）
   async getListByTaskId(user, data) {
     const { id } = user;
-    const { page, pageNum } = data;
 
     let searchData: any = searchParams(data, ['platform_type', 'platform_id'], ['page', 'pageNum']);
     console.log(searchData);
 
-    //   let sql = this.userRepo.createQueryBuilder('user')
-    //   .select(['user.*', 'u.username referrer_username', '(select count(*) from user where u.id = referrer_user_id) referrer_num', '(select count(*) from platform where status = 2 and user.id = user_id) platformStatusNum'])
-    //   .leftJoinAndSelect(User, 'u', 'user.referrer_user_id = u.id')
-    //   .where('(user.id like :search or user.username like :search or user.email like :search or user.qq like :search or user.mobile like :search or user.freeze_reason like :search or user.name like :search or user.idcardno like :search)')
-    //   .andWhere('user.role like :role and user.freeze_status like :freeze_status and user.isVip like :isVip and user.real_status like :real_status');
-
-    // if (data.create_time && data.create_time.length === 2) {
-    //   sql.andWhere('user.create_time between :create_time1 and :create_time2', { create_time1: data.create_time[0], create_time2: data.create_time[1] });
-    // }
-
     // 按照task_id,platform_type,platform_head_thumb分组
     // task_id：父任务编号，platform_type：活动平台类型，platform_name：平台账号，gold：金币数，task_num：总任务数，statusNum0：未开始任务数，statusNum1：进行中任务数，statusNum2：待审核任务数，statusNum3：审核通过任务数，statusNum4：审核不通过任务数，statusNum5：已取消任务数，statusNum6：违规任务数，publish_time：发布时间
-    // let res: any = await this.taskRepo.query(`select t.task_id, t.platform_type, p.platform_name, sum(gold) gold, (select count(*) from task where task_id = t.task_id) task_num, (select count(*) from task where status = 0 and task_id = t.task_id) statusNum0, t.publish_time from task t left join platform p on t.platform_id = p.id where t.user_id = '${id}' and t.platform_type like '${searchData.platform_type}' and  t.platform_id like '${searchData.platform_id}' group by t.task_id, t.platform_type, p.platform_name, t.publish_time limit ${(page - 1) * pageNum}, ${pageNum}`);
-    let sql = this.taskRepo.createQueryBuilder('task')
-      .select([])
+    // let res: any = await this.taskRepo.query(`select t.task_id, t.platform_type, p.platform_name, sum(gold) gold, (select count(*) from task where task_id = t.task_id and user_id = '${id}') task_num, (select count(*) from task where status = 0 and task_id = t.task_id and  user_id = '${id}') statusNum0, t.publish_time from task t left join platform p on t.platform_id = p.id where t.user_id = '${id}' and t.platform_type like '${searchData.platform_type}' and  t.platform_id like '${searchData.platform_id}' group by t.task_id, t.platform_type, p.platform_name, t.publish_time limit ${(page - 1) * pageNum}, ${pageNum}`);
+    // return resFormat(true, res, null);
 
-    return resFormat(true, res, null);
+    let sql = this.taskRepo.createQueryBuilder('t')
+      .select([
+        't.task_id task_id',
+        't.platform_type platform_type',
+        't.platform_id platform_id',
+        'p.platform_name platform_name',
+        'sum(gold) gold',
+        '(select count(*) from task where task_id = t.task_id and user_id = :id) task_num',
+        '(select count(*) from task where status = 0 and task_id = t.task_id and user_id = :id) statusNum0',
+        '(select count(*) from task where status = 1 and task_id = t.task_id and user_id = :id) statusNum1',
+        '(select count(*) from task where status = 2 and task_id = t.task_id and user_id = :id) statusNum2',
+        '(select count(*) from task where status = 3 and task_id = t.task_id and user_id = :id) statusNum3',
+        '(select count(*) from task where status = 4 and task_id = t.task_id and user_id = :id) statusNum4',
+        '(select count(*) from task where status = 5 and task_id = t.task_id and user_id = :id) statusNum5',
+        '(select count(*) from task where status = 6 and task_id = t.task_id and user_id = :id) statusNum6',
+        't.publish_time publish_time'])
+      .leftJoin(Platform, 'p', 't.platform_id = p.id')
+      .where('t.user_id = :id and t.platform_type like :platform_type and t.platform_id like :platform_id', { id })
+      .groupBy('t.task_id')
+      .addGroupBy('t.platform_type')
+      .addGroupBy('t.platform_id')
+      .addGroupBy('p.platform_name')
+      .addGroupBy('t.publish_time');
+
+    if (data.publish_time && data.publish_time.length === 2) {
+      sql.andWhere('t.publish_time between :publish_time1 and :publish_time2', { publish_time1: data.publish_time[0], publish_time2: data.publish_time[1] });
+    }
+
+    let res: any[] = await sql
+      .offset((data.page - 1) * data.pageNum)
+      .limit(data.pageNum)
+      .setParameters(searchData)
+      .getRawMany();
+
+    // 使用getRawMany()方法时，删除所有原始数据
+    // removeRawMany(res, 'p_', []);
+
+    // 查询总数
+    // let count = await sql.getCount();
+    let countData: any = await this.taskRepo.query(`select count(*) count from (select count(*) from task where user_id = ${id} group by task_id) task`);
+    let count = countData[0].count
+
+    return resFormat(true, { lists: res, total: count }, null);
   }
 
-  // 取消任务（创作者）
+  // 取消父任务（创作者）
   async taskCancel(user, data) {
     const { id } = user;
     const { task_id } = data;
@@ -332,8 +399,76 @@ export class TaskService {
     }
   }
 
+  // 获取某个父任务下的子任务详情（创作者，根据task_id查询）
+  async getTaskDetailByTaskId(user, task_id) {
+    const { id } = user;
 
-  // ====================================== 刷手 ======================================
+    let res: any = await this.taskRepo.createQueryBuilder('t')
+      .select([
+        't.task_id task_id',
+        't.platform_type platform_type',
+        't.platform_id platform_id',
+        'p.platform_name platform_name',
+        't.task_entry task_entry',
+        't.attention_time attention_time',
+        't.remark remark',
+        'sum(gold) gold',
+        '(select count(*) from task where task_id = t.task_id and user_id = :id) task_num',
+        '(select count(*) from task where status = 0 and task_id = t.task_id and user_id = :id) statusNum0',
+        '(select count(*) from task where status = 1 and task_id = t.task_id and user_id = :id) statusNum1',
+        '(select count(*) from task where status = 2 and task_id = t.task_id and user_id = :id) statusNum2',
+        '(select count(*) from task where status = 3 and task_id = t.task_id and user_id = :id) statusNum3',
+        '(select count(*) from task where status = 4 and task_id = t.task_id and user_id = :id) statusNum4',
+        '(select count(*) from task where status = 5 and task_id = t.task_id and user_id = :id) statusNum5',
+        '(select count(*) from task where status = 6 and task_id = t.task_id and user_id = :id) statusNum6',
+        't.publish_time publish_time'])
+      .leftJoin(Platform, 'p', 't.platform_id = p.id')
+      .where('t.user_id = :id and task_id = :task_id', { id, task_id })
+      .groupBy('t.task_id')
+      .addGroupBy('t.platform_type')
+      .addGroupBy('t.platform_id')
+      .addGroupBy('p.platform_name')
+      .addGroupBy('t.task_entry')
+      .addGroupBy('t.attention_time')
+      .addGroupBy('t.remark')
+      .addGroupBy('t.publish_time')
+      .getRawOne();
+
+    return resFormat(true, res, null);
+  }
+
+  // 获取某个父任务下的子任务列表（创作者，根据task_id查询）
+  async getTaskDetailListByTaskId(user, data) {
+    const { id } = user;
+
+    let searchData: any = searchParams(data, ['transpond', 'status'], ['page', 'pageNum', 'task_id']);
+    console.log(searchData);
+
+    let sql = this.taskRepo.createQueryBuilder('t')
+      .select(['t.*', 'u.username username', 'p.platform_name platform_name', 'u.qq qq'])
+      .leftJoinAndSelect(User, 'u', 't.user_id = u.id')
+      .leftJoinAndSelect(Platform, 'p', 't.platform_id = p.id')
+      .where('t.transpond like :transpond and t.status like :status and task_id = :task_id', { task_id: data.task_id })
+
+    let res: any[] = await sql
+      .offset((data.page - 1) * data.pageNum)
+      .limit(data.pageNum)
+      .setParameters(searchData)
+      .getRawMany();
+
+    // 使用getRawMany()方法时，删除所有原始数据
+    removeRawMany(res, 'u_', []);
+    removeRawMany(res, 'p_', []);
+
+    let count: number = await sql.getCount();
+
+    return resFormat(true, { lists: res, total: count }, null);
+  }
+
+
+
+
+  // ================================================ 刷手 ================================================
   // 获取可接任务列表（刷手）
   async getListSimple(user, data) {
     const { id } = user;
@@ -349,4 +484,41 @@ export class TaskService {
 
     return resFormat(true, res, null);
   }
+
+  // 抢任务
+  async taskRob(user, data) {
+    const { id, role } = user;
+    const { task_id, platform_id } = data;
+
+    // 刷手角色才能抢任务
+    if (role !== 'user') {
+      return resFormat(false, null, `刷手角色才能抢任务`);
+    }
+
+    // 您有任务还未完成，不能同时抢两个任务
+    let isExistTask = await this.taskRepo.findOne({ task_id, takeover_user_id: id, status: 1 })
+    if (isExistTask) {
+      return resFormat(false, null, `您有任务还未完成，不能同时抢两个任务`);
+    }
+
+    // 获取可接的任务列表
+    let taskList: any[] = await this.taskRepo.find({ task_id, status: 0 });
+
+    if (taskList.length === 0) {
+      return resFormat(false, null, `您来迟了！任务已抢完，请刷新重试`);
+    }
+
+    // 随机抽取一个任务，作为刷手抢到的任务
+    let robId = taskList[Math.floor(Math.random() * taskList.length)].id;
+    console.log('抢到的任务：', robId);
+
+    let res = await this.taskRepo.update(robId, { status: 1, takeover_time: new Date(), takeover_user_id: id, platform_id });
+
+    if (res.raw.affectedRows > 0) {
+      return resFormat(true, null, `您已成功抢到[${robId}]任务`);
+    } else {
+      return resFormat(false, null, `抢任务失败`);
+    }
+  }
+
 }

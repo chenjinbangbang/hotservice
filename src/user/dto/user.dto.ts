@@ -7,7 +7,8 @@ export class UserSearchDto extends PageDto {
   // 模糊搜索：编号(id)，用户名(username)，师傅(referrer_username)，E-mail(email)，QQ(qq)，手机号(mobile)，冻结原因(freeze_reason)，真实姓名(name)，身份证号码(idcardno)
   @ApiProperty({
     description: '查询关键字，模糊搜索（编号，用户名，师傅，E-mail，QQ，手机号，冻结原因，真实姓名，身份证号码）',
-    default: ''
+    default: '',
+    required: false
   })
   @IsString()
   readonly search: string;
@@ -22,27 +23,31 @@ export class UserSearchDto extends PageDto {
   @ApiProperty({
     description: '角色（""：搜索全部，user：刷手，origin：创作者，admin：管理者）',
     enum: ['user', 'origin', 'admin'],
-    default: ''
+    default: '',
+    required: false
   })
   readonly role: string;
 
   @ApiProperty({
     description: '是否被冻结（""：搜索全部，0：正常，1：冻结）',
-    default: ''
+    default: '',
+    required: false
   })
   // @IsInt()
   readonly freeze_status: string;
 
   @ApiProperty({
     description: 'vip（""：搜索全部，0：不是，1：是）',
-    default: ''
+    default: '',
+    required: false
   })
   // @IsInt()
   readonly isVip: string;
 
   @ApiProperty({
     description: '实名状态（""：搜索全部，0：未实名，1：待审核，2：审核不通过，3：已实名）',
-    default: ''
+    default: '',
+    required: false
   })
   // @IsInt()
   readonly real_status: string;
@@ -56,14 +61,16 @@ export class UserSearchDto extends PageDto {
 
   @ApiProperty({
     description: '注册时间',
-    type: [String]
+    type: [String],
+    required: false
   })
   // @IsArray()
   readonly create_time: null | string[];
 
   @ApiProperty({
     description: '最后登录时间',
-    type: [String]
+    type: [String],
+    required: false
   })
   // @IsArray()
   readonly last_login_time: null | string[];
@@ -411,11 +418,4 @@ export class UserDto {
   })
   @IsString()
   readonly body_idcard_src: string;
-
-  // @ApiProperty({
-  //   description: '是否绑定了平台账号'
-  // })
-  // @IsInt()
-  // readonly isPlatform: number;
-
 }

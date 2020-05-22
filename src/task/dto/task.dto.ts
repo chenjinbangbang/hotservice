@@ -1,6 +1,6 @@
 import { PageDto } from "src/common/dto";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, IsInt, IsEmail, IsNotEmpty, Min, Max, MaxLength } from "class-validator";
+import { IsString, IsInt, IsEmail, IsNotEmpty, Min, Max, MaxLength, IsNumberString } from "class-validator";
 
 // 获取任务列表实体
 export class TaskSearchDto extends PageDto {
@@ -49,13 +49,31 @@ export class TaskSearchDto extends PageDto {
   readonly status: string;
 }
 
-// 更改任务状态为违规状态实体
-export class IdDto {
+// 更改任务状态实体
+export class StatusDto {
   @ApiProperty({
     description: '任务编号'
   })
   @IsInt()
   readonly id: number;
+
+  @ApiProperty({
+    description: '任务状态（0：未开始，1：进行中，2：待审核，3：审核通过，4：审核不通过，5：已取消，6：违规）'
+  })
+  @IsInt()
+  readonly status: number;
+
+  @ApiProperty({
+    description: '审核不通过原因（任务状态为4时必传）（可多选，0：没有关注，1：没有点赞，2：没有收藏，3：没有评论，4：有评论但和评论内容不符，5：没有转发，6：有转发但和转发内容不符）',
+    required: false
+  })
+  readonly status_reason: number[];
+
+  @ApiProperty({
+    description: '审核不通过图片（任务状态为4时传，非必填）（可多张图片）',
+    required: false
+  })
+  readonly status_reason_imgs: string[];
 }
 
 // 发布任务实体
@@ -146,14 +164,14 @@ export class TaskListDto extends PageDto {
     default: '',
     required: false
   })
-  platform_type: string;
+  readonly platform_type: string;
 
   @ApiProperty({
     description: '平台账号',
     default: '',
     required: false
   })
-  platform_id: string;
+  readonly platform_id: string;
 
   @ApiProperty({
     description: '发布时间',
@@ -172,6 +190,29 @@ export class TaskIdDto {
   readonly task_id: number;
 }
 
+// 获取某个父任务下的子任务列表实体
+export class TaskDetailListDto extends PageDto {
+  @ApiProperty({
+    description: '父任务编号'
+  })
+  @IsNumberString()
+  readonly task_id: number;
+
+  @ApiProperty({
+    description: '是否转发（""：搜索全部，0：不转发，1：转发）',
+    default: '',
+    required: false
+  })
+  readonly transpond: string;
+
+  @ApiProperty({
+    description: '任务状态（""：搜索全部，0：未开始，1：进行中，2：待审核，3：审核通过，4：审核不通过，5：已取消，6：违规）',
+    default: '',
+    required: false
+  })
+  readonly status: string;
+}
+
 // 获取可接任务列表实体
 export class TaskSimpleDto extends PageDto {
   @ApiProperty({
@@ -179,5 +220,20 @@ export class TaskSimpleDto extends PageDto {
     default: '',
     required: false
   })
-  platform_type: string;
+  readonly platform_type: string;
+}
+
+// 抢任务实体
+export class RobTaskDto {
+  @ApiProperty({
+    description: '父任务编号'
+  })
+  @IsInt()
+  readonly task_id: number;
+
+  @ApiProperty({
+    description: '平台账号编号'
+  })
+  @IsInt()
+  readonly platform_id: number;
 }
