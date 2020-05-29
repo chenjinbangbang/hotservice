@@ -41,10 +41,12 @@ export class AuthService {
     const { username, id, isVip, gold, wealth, role } = user;
     const payload = { username, sub: id, isVip, gold, wealth, role }; // sub属性：保持我们的id值与JWT标准一致
     console.log('token信息：', payload);
-    return {
+    return resFormat(true,
+      {
       access_token: this.jwtService.sign(payload), // sign()函数：用于从用户对象属性的子集生产jwt
       expiresIn: jwtConstants.expiresIn * 1000
-    }
+      },
+      null);
   }
 
   // 用户注册

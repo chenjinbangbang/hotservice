@@ -3,7 +3,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsString, IsInt, IsEmail, IsNotEmpty, Min, Max, MaxLength, IsNumberString } from "class-validator";
 
 // 获取任务列表实体
-export class TaskSearchDto extends PageDto {
+export class TaskListAdminSearchDto extends PageDto {
   // 模糊搜索：任务编号（id），发布方（username），发布平台账号（platform_name），接手平台账号（takeover_platform_name）
   @ApiProperty({
     description: '任务编号',
@@ -158,7 +158,7 @@ export class PublishTaskDto {
 }
 
 // 获取创作者任务列表实体
-export class TaskListDto extends PageDto {
+export class TaskListOriginDto extends PageDto {
   @ApiProperty({
     description: '活动平台类型（""：搜索全部，0：今日头条，1：抖音短视频，2：火山小视频，3：快手）',
     default: '',
@@ -191,7 +191,7 @@ export class TaskIdDto {
 }
 
 // 获取某个父任务下的子任务列表实体
-export class TaskDetailListDto extends PageDto {
+export class TaskListDetailOriginDto extends PageDto {
   @ApiProperty({
     description: '父任务编号'
   })
@@ -223,6 +223,21 @@ export class TaskSimpleDto extends PageDto {
   readonly platform_type: string;
 }
 
+// 验证发布平台账号实体
+export class PlatformNameCheckDto {
+  @ApiProperty({
+    description: '子任务编号'
+  })
+  @IsNumberString()
+  readonly id: number;
+
+  @ApiProperty({
+    description: '发布平台账号'
+  })
+  @IsString()
+  readonly platform_name: string;
+}
+
 // 抢任务实体
 export class RobTaskDto {
   @ApiProperty({
@@ -236,4 +251,44 @@ export class RobTaskDto {
   })
   @IsInt()
   readonly platform_id: number;
+}
+
+// 获取刷手的子任务列表实体
+export class TaskListUserSearchDto extends PageDto {
+  // 模糊搜索：发布方（username），发布平台账号（platform_name）
+  @ApiProperty({
+    description: '发布方',
+    default: '',
+    required: false
+  })
+  readonly username: string;
+
+  @ApiProperty({
+    description: '发布平台账号',
+    default: '',
+    required: false
+  })
+  readonly platform_name: string;
+
+  // 精准搜索：平台类型（platform_type），平台账号（takeover_platform_name），任务状态（status）
+  @ApiProperty({
+    description: '平台类型（""：搜索全部，0：今日头条，1：抖音短视频，2：火山小视频，3：快手）',
+    default: '',
+    required: false
+  })
+  readonly platform_type: string;
+
+  @ApiProperty({
+    description: '平台账号（""：搜索全部）',
+    default: '',
+    required: false
+  })
+  readonly takeover_platform_name: string;
+
+  @ApiProperty({
+    description: '任务状态（""：搜索全部，0：未开始，1：进行中，2：待审核，3：审核通过，4：审核不通过，5：已取消，6：违规）',
+    default: '',
+    required: false
+  })
+  readonly status: string;
 }

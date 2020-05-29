@@ -27,8 +27,11 @@ export class Task {
   @Column({ type: 'simple-array', comment: '审核不通过图片（可多张图片）', nullable: true })
   status_reason_imgs: string[];
 
-  @Column({ comment: '审核倒计时（24小时内，单位秒）', default: 24 * 60 * 60 })
-  countdown_time: number;
+  @Column({ type: 'timestamp', comment: '审核不通过时间', nullable: true })
+  status_reason_time: Date;
+
+  // @Column({ comment: '审核倒计时（24小时内，单位秒）', default: 24 * 60 * 60 })
+  // countdown_time: number;
 
   @Column({ type: 'bigint', comment: '平台账号编号' })
   platform_id: number;
@@ -56,14 +59,14 @@ export class Task {
   @Column({ type: 'timestamp', comment: '接手时间', nullable: true })
   takeover_time: Date;
 
-  @Column({ comment: '任务预览时间', default: 60 })
-  preview_countdown_time: number;
+  // @Column({ comment: '任务预览时间', default: 60 })
+  // preview_countdown_time: number;
 
   @Column({ type: 'tinyint', comment: '规定任务完成时间（0：10分钟，1：20分钟，2：30分钟，3：40分钟，4：50分钟 5：60分钟）', nullable: true })
   complete_countdown_time: number;
 
   @Column({ type: 'timestamp', comment: '任务完成时间', nullable: true })
-  complete_time: number;
+  complete_time: Date;
 
   // @Column({ type: 'tinyint', comment: '是否关注（0：不关注，1：关注）', default: 1 })
   // attention: number;

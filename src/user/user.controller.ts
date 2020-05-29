@@ -14,6 +14,10 @@ import { AuthGuard } from '@nestjs/passport';
 @ApiTags('用户相关') // 要将控制器附加到特定标签
 // @UseGuards(AuthGuard('jwt'))
 // @ApiBearerAuth()
+@ApiResponse({ status: 200, description: 'OK' })
+@ApiResponse({ status: 401, description: 'Unauthorized' })
+@ApiResponse({ status: 403, description: 'Forbidden' })
+@ApiResponse({ status: 404, description: 'Not Found' })
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) { }
