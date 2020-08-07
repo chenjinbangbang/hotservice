@@ -32,7 +32,7 @@
     "@types/dateformat": "^3.0.1",
     "@types/passport-jwt": "^3.0.3",
     "@types/passport-local": "^1.0.33",
-    "class-transformer": "^0.2.3",
+    "class-transformer": "^0.3.1",
     "class-validator": "^0.11.0",
     "dateformat": "^3.0.3",
     "multer": "^1.4.2",
