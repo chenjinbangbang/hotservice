@@ -38,6 +38,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document); // 1. Swagger UI的挂载路径。2. 应用程序实例。3. 上面已经实例化的文档对象document
 
-  await app.listen(4002);
+  await app.listen(4000);
 }
 bootstrap();

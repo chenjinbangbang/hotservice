@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 
 // 加密crypto
 import crypto = require('crypto');
+import { resFormat } from 'src/common/global';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -21,6 +22,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     const user = await this.authService.validateUser(username, hash);
     if (!user) {
       throw new UnauthorizedException({ message: '用户名或密码不正确' });
+      // return resFormat(false, null, '用户名或密码不正确')
     }
     return user;
   }

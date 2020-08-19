@@ -4,6 +4,6 @@ import { resFormat } from 'src/common/global';
 @Injectable()
 export class AppService {
   getHello(): object {
-    return resFormat(true, '测试接口是否正常', null);
+    return resFormat(true, '测试hot接口是否正常', null);
   }
 }
